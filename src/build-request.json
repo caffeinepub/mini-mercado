@@ -1,0 +1,71 @@
+{
+  "kind": "build_request",
+  "title": "Localize all UI text to Portuguese (pt-BR)",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-11",
+      "text": "Convert all user-facing UI text across the app from English to Portuguese (pt-BR), including page titles, headings, descriptions, buttons, placeholders, helper text, alerts, and empty states.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Preciso que coloque ele em portugues pt br"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All visible UI strings throughout the app display in Portuguese (pt-BR).",
+        "Key screens are translated: Dashboard, Inventory, POS, Customers, Cash Register.",
+        "Header and navigation text are translated (e.g., the Dashboard button and top-level page headings).",
+        "No obvious English UI strings remain (excluding proper nouns/brand names if kept intentionally)."
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "text": "Translate all dynamic and validation/error messages to Portuguese (pt-BR), including confirm() prompts and inline form/payment validation errors.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Inventory delete confirmation prompt is in pt-BR (currently: \"Are you sure you want to delete...\").",
+        "Customer delete confirmation and the 'cannot delete due to purchase history' error message are in pt-BR.",
+        "POS checkout validation errors are in pt-BR (e.g., missing payment method, insufficient cash amount).",
+        "Cash-register warnings/alerts (e.g., register not open) are in pt-BR."
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "text": "Localize payment-method labels and raffle-eligibility messaging to Portuguese (pt-BR) while preserving stored/internal values to avoid breaking existing persisted data.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Payment method UI displays pt-BR labels (e.g., Dinheiro, Crédito, Débito, PIX) without changing persisted sale records or internal PaymentMethod values already stored.",
+        "The raffle eligibility alert message is shown in pt-BR on both checkout and completion states.",
+        "POS checkout field labels are in pt-BR (e.g., Payment Method, Amount Paid, Change, Complete Sale)."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not edit files under frontend/src/components/ui (read-only).",
+    "Do not edit immutable hook paths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
+    "Maintain compatibility with existing LocalStorage-persisted data (avoid changing stored enum/string values; localize via display mapping)."
+  ],
+  "nonGoals": [
+    "Adding new modules/features beyond localization.",
+    "Changing the app’s data model or persistence format (except where strictly required to keep backward compatibility).",
+    "Introducing third-party localization services or external APIs."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

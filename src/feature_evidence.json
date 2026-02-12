@@ -1,0 +1,89 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-convert-all-user-facing-ui-text-across-the-app-from-english-to-portuguese-pt-br-including-page-titles-headings-descriptions-buttons-placeholders-helper-text-alerts-and-empty-states",
+      "featureTitle": "Convert all user-facing UI text across the app from English to Portuguese (pt-BR), including page titles, headings, descriptions, buttons, placeholders, helper text, alerts, and empty states.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/features/cashregister/CashClosePanel.tsx",
+        "frontend/src/features/cashregister/CashOpenPanel.tsx",
+        "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
+        "frontend/src/features/customers/CustomerDetail.tsx",
+        "frontend/src/features/customers/CustomerFormDialog.tsx",
+        "frontend/src/features/customers/CustomersList.tsx",
+        "frontend/src/features/inventory/ProductFilters.tsx",
+        "frontend/src/features/inventory/ProductFormDialog.tsx",
+        "frontend/src/features/inventory/ProductTable.tsx",
+        "frontend/src/features/pos/CartPanel.tsx",
+        "frontend/src/features/pos/ProductPicker.tsx",
+        "frontend/src/i18n/ptBR.ts",
+        "frontend/src/pages/CashRegisterPage.tsx",
+        "frontend/src/pages/CustomersPage.tsx",
+        "frontend/src/pages/DashboardPage.tsx",
+        "frontend/src/pages/InventoryPage.tsx",
+        "frontend/src/pages/PosPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-11"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-translate-all-dynamic-and-validation-error-messages-to-portuguese-pt-br-including-confirm-prompts-and-inline-form-payment-validation-errors",
+      "featureTitle": "Translate all dynamic and validation/error messages to Portuguese (pt-BR), including confirm() prompts and inline form/payment validation errors.",
+      "files": [
+        "frontend/src/features/cashregister/CashClosePanel.tsx",
+        "frontend/src/features/cashregister/CashOpenPanel.tsx",
+        "frontend/src/features/pos/CheckoutPanel.tsx",
+        "frontend/src/features/pos/payment.ts",
+        "frontend/src/features/pos/useCart.ts",
+        "frontend/src/pages/CustomersPage.tsx",
+        "frontend/src/pages/InventoryPage.tsx",
+        "frontend/src/pages/PosPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-12"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-localize-payment-method-labels-and-raffle-eligibility-messaging-to-portuguese-pt-br-while-preserving-stored-internal-values-to-avoid-breaking-existing-persisted-data",
+      "featureTitle": "Localize payment-method labels and raffle-eligibility messaging to Portuguese (pt-BR) while preserving stored/internal values to avoid breaking existing persisted data.",
+      "files": [
+        "frontend/src/features/cashregister/CashClosePanel.tsx",
+        "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
+        "frontend/src/features/customers/CustomerDetail.tsx",
+        "frontend/src/features/pos/CheckoutPanel.tsx",
+        "frontend/src/features/pos/RaffleEligibilityAlert.tsx",
+        "frontend/src/features/pos/payment.ts",
+        "frontend/src/pages/PosPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-13"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-12T02:30:59.640Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 3,
+    "implemented": 3,
+    "items": [
+      {
+        "id": "REQ-11",
+        "summary": "Convert all user-facing UI text across the app from English to Portuguese (pt-BR), including page titles, headings, descriptions, buttons, placeholders, helper text, alerts, and empty states.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/i18n/ptBR.ts",
+          "frontend/src/App.tsx",
+          "frontend/src/pages/DashboardPage.tsx",
+          "frontend/src/pages/InventoryPage.tsx",
+          "frontend/src/features/inventory/ProductFilters.tsx",
+          "frontend/src/features/inventory/ProductFormDialog.tsx",
+          "frontend/src/features/inventory/ProductTable.tsx",
+          "frontend/src/pages/CustomersPage.tsx",
+          "frontend/src/features/customers/CustomersList.tsx",
+          "frontend/src/features/customers/CustomerFormDialog.tsx",
+          "frontend/src/features/customers/CustomerDetail.tsx",
+          "frontend/src/pages/PosPage.tsx",
+          "frontend/src/features/pos/ProductPicker.tsx",
+          "frontend/src/features/pos/CartPanel.tsx",
+          "frontend/src/pages/CashRegisterPage.tsx",
+          "frontend/src/features/cashregister/CashOpenPanel.tsx",
+          "frontend/src/features/cashregister/CashClosePanel.tsx",
+          "frontend/src/features/cashregister/ClosingsHistoryList.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/i18n/ptBR.ts",
+          "frontend/src/App.tsx",
+          "frontend/src/pages/DashboardPage.tsx",
+          "frontend/src/pages/InventoryPage.tsx",
+          "frontend/src/features/inventory/ProductFilters.tsx",
+          "frontend/src/features/inventory/ProductFormDialog.tsx",
+          "frontend/src/features/inventory/ProductTable.tsx",
+          "frontend/src/pages/CustomersPage.tsx",
+          "frontend/src/features/customers/CustomersList.tsx",
+          "frontend/src/features/customers/CustomerFormDialog.tsx",
+          "frontend/src/features/customers/CustomerDetail.tsx",
+          "frontend/src/pages/PosPage.tsx",
+          "frontend/src/features/pos/ProductPicker.tsx",
+          "frontend/src/features/pos/CartPanel.tsx",
+          "frontend/src/pages/CashRegisterPage.tsx",
+          "frontend/src/features/cashregister/CashOpenPanel.tsx",
+          "frontend/src/features/cashregister/CashClosePanel.tsx",
+          "frontend/src/features/cashregister/ClosingsHistoryList.tsx"
+        ]
+      },
+      {
+        "id": "REQ-12",
+        "summary": "Translate all dynamic and validation/error messages to Portuguese (pt-BR), including confirm() prompts and inline form/payment validation errors.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/InventoryPage.tsx",
+          "frontend/src/pages/CustomersPage.tsx",
+          "frontend/src/features/pos/payment.ts",
+          "frontend/src/features/pos/CheckoutPanel.tsx",
+          "frontend/src/features/pos/useCart.ts",
+          "frontend/src/pages/PosPage.tsx",
+          "frontend/src/features/cashregister/CashOpenPanel.tsx",
+          "frontend/src/features/cashregister/CashClosePanel.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/InventoryPage.tsx",
+          "frontend/src/pages/CustomersPage.tsx",
+          "frontend/src/features/pos/payment.ts",
+          "frontend/src/features/pos/CheckoutPanel.tsx",
+          "frontend/src/features/pos/useCart.ts",
+          "frontend/src/pages/PosPage.tsx",
+          "frontend/src/features/cashregister/CashOpenPanel.tsx",
+          "frontend/src/features/cashregister/CashClosePanel.tsx"
+        ]
+      },
+      {
+        "id": "REQ-13",
+        "summary": "Localize payment-method labels and raffle-eligibility messaging to Portuguese (pt-BR) while preserving stored/internal values to avoid breaking existing persisted data.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/pos/payment.ts",
+          "frontend/src/features/pos/CheckoutPanel.tsx",
+          "frontend/src/features/pos/RaffleEligibilityAlert.tsx",
+          "frontend/src/pages/PosPage.tsx",
+          "frontend/src/features/customers/CustomerDetail.tsx",
+          "frontend/src/features/cashregister/CashClosePanel.tsx",
+          "frontend/src/features/cashregister/ClosingsHistoryList.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/pos/payment.ts",
+          "frontend/src/features/pos/CheckoutPanel.tsx",
+          "frontend/src/features/pos/RaffleEligibilityAlert.tsx",
+          "frontend/src/pages/PosPage.tsx",
+          "frontend/src/features/customers/CustomerDetail.tsx",
+          "frontend/src/features/cashregister/CashClosePanel.tsx",
+          "frontend/src/features/cashregister/ClosingsHistoryList.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "build-request.json",
+    "build-template/README.md",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
+    "frontend/src/features/cashregister/CashClosePanel.tsx",
+    "frontend/src/features/cashregister/CashOpenPanel.tsx",
+    "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
+    "frontend/src/features/customers/CustomerDetail.tsx",
+    "frontend/src/features/customers/CustomerFormDialog.tsx",
+    "frontend/src/features/customers/CustomersList.tsx",
+    "frontend/src/features/inventory/ProductFilters.tsx",
+    "frontend/src/features/inventory/ProductFormDialog.tsx",
+    "frontend/src/features/inventory/ProductTable.tsx",
+    "frontend/src/features/pos/CartPanel.tsx",
+    "frontend/src/features/pos/CheckoutPanel.tsx",
+    "frontend/src/features/pos/ProductPicker.tsx",
+    "frontend/src/features/pos/RaffleEligibilityAlert.tsx",
+    "frontend/src/features/pos/payment.ts",
+    "frontend/src/features/pos/useCart.ts",
+    "frontend/src/i18n/ptBR.ts",
+    "frontend/src/pages/CashRegisterPage.tsx",
+    "frontend/src/pages/CustomersPage.tsx",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/InventoryPage.tsx",
+    "frontend/src/pages/PosPage.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

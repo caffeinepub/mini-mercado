@@ -1,0 +1,55 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-12T02:30:59.637Z",
+  "summary": "Diff introduces a new pt-BR string map (frontend/src/i18n/ptBR.ts) and updates many UI components/pages (App shell, Dashboard, Inventory, Customers, POS cart/checkout, Cash Register) to use Portuguese display strings. Payment method labels are mapped to pt-BR via helper functions while keeping internal values like 'Cash'/'Credit' unchanged. Some required UI areas may still contain English because several modified files were omitted/truncated in the diff summary, and key POS/Cash Register flows beyond the shown components are not evidenced as fully translated.",
+  "missing_requirements": [
+    {
+      "id": "REQ-11",
+      "requirement": "Convert all user-facing UI text across the app from English to Portuguese (pt-BR), including page titles, headings, descriptions, buttons, placeholders, helper text, alerts, and empty states.",
+      "reason": "The diff summary does not show translations applied across all screens/components in the app. Several modified files are omitted and multiple files are truncated; key POS and other areas (e.g., overall POS page wrapper, sale completion screen, any remaining navigation/header/footer text beyond what is shown) cannot be verified as fully localized from the provided evidence.",
+      "evidence": [
+        "<file-diff>: Omitted files due to limits: modified=3",
+        "frontend/src/features/pos/ProductPicker.tsx (truncated)",
+        "frontend/src/features/inventory/ProductFormDialog.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "requirement": "Translate all dynamic and validation/error messages to Portuguese (pt-BR), including confirm() prompts and inline form/payment validation errors.",
+      "reason": "Some required dynamic messages are translated (inventory/customer delete confirms; POS payment errors; cash-register not-open warning), but the diff summary is incomplete (omitted/truncated files). Therefore, it cannot be confirmed that *all* dynamic/validation/error messages throughout the app are translated.",
+      "evidence": [
+        "<file-diff>: Omitted files due to limits: modified=3",
+        "frontend/src/i18n/ptBR.ts (truncated)"
+      ]
+    }
+  ],
+  "hallucinated_features": [],
+  "confidence": 0.62,
+  "changed_files": [
+    "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/features/cashregister/CashClosePanel.tsx",
+    "frontend/src/features/cashregister/CashOpenPanel.tsx",
+    "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
+    "frontend/src/features/customers/CustomerDetail.tsx",
+    "frontend/src/features/customers/CustomerFormDialog.tsx",
+    "frontend/src/features/customers/CustomersList.tsx",
+    "frontend/src/features/inventory/ProductFilters.tsx",
+    "frontend/src/features/inventory/ProductFormDialog.tsx",
+    "frontend/src/features/inventory/ProductTable.tsx",
+    "frontend/src/features/pos/CartPanel.tsx",
+    "frontend/src/features/pos/CheckoutPanel.tsx",
+    "frontend/src/features/pos/ProductPicker.tsx",
+    "frontend/src/features/pos/RaffleEligibilityAlert.tsx",
+    "frontend/src/features/pos/payment.ts",
+    "frontend/src/features/pos/useCart.ts",
+    "frontend/src/i18n/ptBR.ts",
+    "frontend/src/pages/CashRegisterPage.tsx",
+    "frontend/src/pages/CustomersPage.tsx",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/InventoryPage.tsx",
+    "frontend/src/pages/PosPage.tsx",
+    "project_state.json"
+  ]
+}
