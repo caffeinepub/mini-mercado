@@ -2,9 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { DollarSign, AlertCircle } from 'lucide-react';
+import { DollarSign, AlertCircle, Loader2 } from 'lucide-react';
 import type { CashSession, Sale } from '../../types/domain';
-import { calculatePaymentBreakdown, getSessionSales } from './reporting';
+import { calculatePaymentBreakdown } from './reporting';
 import { formatCurrency } from '../../utils/money';
 import { ptBR, formatDateTimePtBR } from '../../i18n/ptBR';
 
@@ -12,9 +12,10 @@ interface CashClosePanelProps {
   session?: CashSession;
   sales: Sale[];
   onClose: () => void;
+  isClosing?: boolean;
 }
 
-export function CashClosePanel({ session, sales, onClose }: CashClosePanelProps) {
+export function CashClosePanel({ session, sales, onClose, isClosing }: CashClosePanelProps) {
   if (!session) {
     return (
       <Alert variant="destructive">
@@ -26,7 +27,8 @@ export function CashClosePanel({ session, sales, onClose }: CashClosePanelProps)
     );
   }
 
-  const sessionSales = getSessionSales(sales, session.id);
+  // Filter sales for this session
+  const sessionSales = sales.filter(sale => sale.timestamp >= session.openedAt);
   const breakdown = calculatePaymentBreakdown(sessionSales);
   const grandTotal = session.initialFloat + breakdown.total;
 
@@ -80,9 +82,18 @@ export function CashClosePanel({ session, sales, onClose }: CashClosePanelProps)
             </div>
           </div>
 
-          <Button onClick={onClose} variant="destructive" size="lg" className="w-full">
-            <DollarSign className="h-4 w-4 mr-2" />
-            {ptBR.closeCashRegister}
+          <Button onClick={onClose} variant="destructive" size="lg" className="w-full" disabled={isClosing}>
+            {isClosing ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Fechando...
+              </>
+            ) : (
+              <>
+                <DollarSign className="h-4 w-4 mr-2" />
+                {ptBR.closeCashRegister}
+              </>
+            )}
           </Button>
         </div>
       </CardContent>

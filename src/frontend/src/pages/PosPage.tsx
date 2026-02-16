@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle2, ShoppingCart } from 'lucide-react';
+import { CheckCircle2, ShoppingCart, Loader2 } from 'lucide-react';
 import { useAppStore } from '../hooks/useAppStore';
 import { useCart } from '../features/pos/useCart';
 import { ProductPicker } from '../features/pos/ProductPicker';
@@ -13,13 +13,21 @@ import { RaffleEligibilityAlert } from '../features/pos/RaffleEligibilityAlert';
 import { cartItemsToSaleItems } from '../features/pos/cartTypes';
 import { ptBR } from '../i18n/ptBR';
 import type { PaymentMethod } from '../types/domain';
+import { useRecordSale } from '../hooks/useQueries';
+import { useGetOpenRegisterSession, useListCustomers } from '../hooks/useQueries';
 
 export function PosPage() {
-  const { products, customers, addSale, currentCashSession } = useAppStore();
+  const { products } = useAppStore();
   const cart = useCart();
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | undefined>(undefined);
   const [saleCompleted, setSaleCompleted] = useState(false);
   const [lastSaleTotal, setLastSaleTotal] = useState(0);
+  const [saleError, setSaleError] = useState<string | null>(null);
+
+  // Backend queries
+  const { data: customers = [], isLoading: customersLoading } = useListCustomers();
+  const { data: currentCashSession, isLoading: sessionLoading } = useGetOpenRegisterSession();
+  const recordSale = useRecordSale();
 
   const handleAddToCart = (product: typeof products[0]) => {
     const success = cart.addItem(product, 1);
@@ -28,28 +36,43 @@ export function PosPage() {
     }
   };
 
-  const handleCompleteSale = (paymentMethod: PaymentMethod, amountPaid: number, change: number) => {
-    const customer = customers.find((c) => c.id === selectedCustomerId);
-    
-    addSale({
-      items: cartItemsToSaleItems(cart.items),
-      total: cart.total,
-      amountPaid,
-      change,
-      paymentMethod,
-      customerId: customer?.id,
-      customerName: customer?.name,
-    });
+  const handleCompleteSale = async (paymentMethod: PaymentMethod, amountPaid: number, change: number) => {
+    if (!selectedCustomerId) {
+      setSaleError('Por favor, selecione um cliente');
+      return;
+    }
 
-    setLastSaleTotal(cart.total);
-    setSaleCompleted(true);
-    cart.clearCart();
-    setSelectedCustomerId(undefined);
+    setSaleError(null);
+
+    try {
+      await recordSale.mutateAsync({
+        customerId: selectedCustomerId,
+        items: cartItemsToSaleItems(cart.items),
+        paymentMethod,
+        amountPaid,
+      });
+
+      // Update product stock locally
+      cart.items.forEach((item) => {
+        useAppStore.getState().updateProduct(item.product.id, {
+          stock: item.product.stock - item.quantity,
+        });
+      });
+
+      setLastSaleTotal(cart.total);
+      setSaleCompleted(true);
+      cart.clearCart();
+      setSelectedCustomerId(undefined);
+    } catch (error: any) {
+      console.error('Error recording sale:', error);
+      setSaleError(error.message || 'Erro ao registrar venda');
+    }
   };
 
   const handleNewSale = () => {
     setSaleCompleted(false);
     setLastSaleTotal(0);
+    setSaleError(null);
   };
 
   if (saleCompleted) {
@@ -85,7 +108,7 @@ export function PosPage() {
           <h1 className="text-3xl font-bold">{ptBR.pointOfSale}</h1>
           <p className="text-muted-foreground mt-1">{ptBR.pointOfSaleDesc}</p>
         </div>
-        {!currentCashSession && (
+        {!sessionLoading && !currentCashSession && (
           <Alert variant="destructive" className="max-w-md">
             <AlertDescription>
               {ptBR.cashRegisterNotOpen}
@@ -117,6 +140,18 @@ export function PosPage() {
                   <AlertDescription>{cart.error}</AlertDescription>
                 </Alert>
               )}
+              {saleError && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertDescription>{saleError}</AlertDescription>
+                </Alert>
+              )}
+              {recordSale.error && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertDescription>
+                    {recordSale.error instanceof Error ? recordSale.error.message : 'Erro ao registrar venda'}
+                  </AlertDescription>
+                </Alert>
+              )}
               <CartPanel
                 items={cart.items}
                 total={cart.total}
@@ -133,14 +168,22 @@ export function PosPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <RaffleEligibilityAlert total={cart.total} />
-                <CustomerSelector
-                  customers={customers}
-                  selectedCustomerId={selectedCustomerId}
-                  onSelectCustomer={setSelectedCustomerId}
-                />
+                {customersLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : (
+                  <CustomerSelector
+                    customers={customers}
+                    selectedCustomerId={selectedCustomerId}
+                    onSelectCustomer={setSelectedCustomerId}
+                  />
+                )}
                 <CheckoutPanel
                   total={cart.total}
                   onComplete={handleCompleteSale}
+                  disabled={recordSale.isPending || !selectedCustomerId}
+                  isProcessing={recordSale.isPending}
                 />
               </CardContent>
             </Card>

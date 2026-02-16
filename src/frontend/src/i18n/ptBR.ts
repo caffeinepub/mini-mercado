@@ -20,6 +20,8 @@ export const ptBR = {
   customersDescription: 'Gerenciar cadastro de clientes',
   cashRegister: 'Caixa',
   cashRegisterDescription: 'Abrir, fechar e ver histórico',
+  salesHistory: 'Histórico de Vendas',
+  salesHistoryDescription: 'Ver todas as vendas realizadas',
   
   // Inventory page
   inventoryManagement: 'Gerenciamento de Estoque',
@@ -164,6 +166,13 @@ export const ptBR = {
   noClosingRecords: 'Nenhum registro de fechamento ainda.',
   initial: 'Inicial',
   sales: 'Vendas',
+  
+  // Sales history page
+  salesHistoryDesc: 'Visualize todas as vendas realizadas com detalhes',
+  sale: 'Venda',
+  viewItems: 'Ver itens',
+  loadingSales: 'Carregando vendas...',
+  noSalesFound: 'Nenhuma venda encontrada ainda.',
   
   // Common actions
   cancel: 'Cancelar',

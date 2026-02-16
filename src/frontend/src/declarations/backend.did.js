@@ -8,10 +8,197 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const idlService = IDL.Service({});
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
+export const CloseRegisterRequest = IDL.Record({
+  'sessionId' : IDL.Nat,
+  'finalBalanceCents' : IDL.Int,
+});
+export const CreateCustomerRequest = IDL.Record({
+  'id' : IDL.Text,
+  'name' : IDL.Text,
+  'phone' : IDL.Text,
+});
+export const Customer = IDL.Record({
+  'id' : IDL.Text,
+  'eligibleForRaffle' : IDL.Bool,
+  'name' : IDL.Text,
+  'totalPurchasesCents' : IDL.Int,
+  'phone' : IDL.Text,
+});
+export const Time = IDL.Int;
+export const CashRegisterSession = IDL.Record({
+  'id' : IDL.Nat,
+  'closeTime' : IDL.Opt(Time),
+  'isOpen' : IDL.Bool,
+  'finalBalanceCents' : IDL.Opt(IDL.Int),
+  'initialFloatCents' : IDL.Int,
+  'openTime' : Time,
+});
+export const PaymentMethod = IDL.Variant({
+  'card' : IDL.Null,
+  'cash' : IDL.Null,
+});
+export const SaleItem = IDL.Record({
+  'itemId' : IDL.Text,
+  'name' : IDL.Text,
+  'totalCents' : IDL.Int,
+  'quantity' : IDL.Nat,
+  'priceCents' : IDL.Int,
+});
+export const Sale = IDL.Record({
+  'id' : IDL.Nat,
+  'paymentMethod' : PaymentMethod,
+  'date' : Time,
+  'totalCents' : IDL.Int,
+  'changeCents' : IDL.Int,
+  'customerId' : IDL.Text,
+  'items' : IDL.Vec(SaleItem),
+});
+export const ClosingRecord = IDL.Record({
+  'id' : IDL.Nat,
+  'closeTime' : Time,
+  'sessionId' : IDL.Nat,
+  'finalBalanceCents' : IDL.Int,
+});
+export const OpenRegisterRequest = IDL.Record({
+  'initialFloatCents' : IDL.Int,
+});
+export const UpdateCustomerRequest = IDL.Record({
+  'id' : IDL.Text,
+  'name' : IDL.Text,
+  'phone' : IDL.Text,
+});
+
+export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'closeRegister' : IDL.Func([CloseRegisterRequest], [], []),
+  'createCustomer' : IDL.Func([CreateCustomerRequest], [Customer], []),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getCustomer' : IDL.Func([IDL.Text], [Customer], ['query']),
+  'getOpenRegisterSession' : IDL.Func(
+      [],
+      [IDL.Opt(CashRegisterSession)],
+      ['query'],
+    ),
+  'getSale' : IDL.Func([IDL.Nat], [IDL.Opt(Sale)], ['query']),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'listClosingRecords' : IDL.Func([], [IDL.Vec(ClosingRecord)], ['query']),
+  'listCustomers' : IDL.Func([], [IDL.Vec(Customer)], ['query']),
+  'listRegisterSessions' : IDL.Func(
+      [],
+      [IDL.Vec(CashRegisterSession)],
+      ['query'],
+    ),
+  'listSales' : IDL.Func([], [IDL.Vec(Sale)], ['query']),
+  'listSalesByCustomer' : IDL.Func([IDL.Text], [IDL.Vec(Sale)], ['query']),
+  'openRegister' : IDL.Func([OpenRegisterRequest], [CashRegisterSession], []),
+  'recordSale' : IDL.Func(
+      [IDL.Text, IDL.Vec(SaleItem), PaymentMethod, IDL.Int],
+      [Sale],
+      [],
+    ),
+  'updateCustomer' : IDL.Func([UpdateCustomerRequest], [], []),
+});
 
 export const idlInitArgs = [];
 
-export const idlFactory = ({ IDL }) => { return IDL.Service({}); };
+export const idlFactory = ({ IDL }) => {
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
+  const CloseRegisterRequest = IDL.Record({
+    'sessionId' : IDL.Nat,
+    'finalBalanceCents' : IDL.Int,
+  });
+  const CreateCustomerRequest = IDL.Record({
+    'id' : IDL.Text,
+    'name' : IDL.Text,
+    'phone' : IDL.Text,
+  });
+  const Customer = IDL.Record({
+    'id' : IDL.Text,
+    'eligibleForRaffle' : IDL.Bool,
+    'name' : IDL.Text,
+    'totalPurchasesCents' : IDL.Int,
+    'phone' : IDL.Text,
+  });
+  const Time = IDL.Int;
+  const CashRegisterSession = IDL.Record({
+    'id' : IDL.Nat,
+    'closeTime' : IDL.Opt(Time),
+    'isOpen' : IDL.Bool,
+    'finalBalanceCents' : IDL.Opt(IDL.Int),
+    'initialFloatCents' : IDL.Int,
+    'openTime' : Time,
+  });
+  const PaymentMethod = IDL.Variant({ 'card' : IDL.Null, 'cash' : IDL.Null });
+  const SaleItem = IDL.Record({
+    'itemId' : IDL.Text,
+    'name' : IDL.Text,
+    'totalCents' : IDL.Int,
+    'quantity' : IDL.Nat,
+    'priceCents' : IDL.Int,
+  });
+  const Sale = IDL.Record({
+    'id' : IDL.Nat,
+    'paymentMethod' : PaymentMethod,
+    'date' : Time,
+    'totalCents' : IDL.Int,
+    'changeCents' : IDL.Int,
+    'customerId' : IDL.Text,
+    'items' : IDL.Vec(SaleItem),
+  });
+  const ClosingRecord = IDL.Record({
+    'id' : IDL.Nat,
+    'closeTime' : Time,
+    'sessionId' : IDL.Nat,
+    'finalBalanceCents' : IDL.Int,
+  });
+  const OpenRegisterRequest = IDL.Record({ 'initialFloatCents' : IDL.Int });
+  const UpdateCustomerRequest = IDL.Record({
+    'id' : IDL.Text,
+    'name' : IDL.Text,
+    'phone' : IDL.Text,
+  });
+  
+  return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'closeRegister' : IDL.Func([CloseRegisterRequest], [], []),
+    'createCustomer' : IDL.Func([CreateCustomerRequest], [Customer], []),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getCustomer' : IDL.Func([IDL.Text], [Customer], ['query']),
+    'getOpenRegisterSession' : IDL.Func(
+        [],
+        [IDL.Opt(CashRegisterSession)],
+        ['query'],
+      ),
+    'getSale' : IDL.Func([IDL.Nat], [IDL.Opt(Sale)], ['query']),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'listClosingRecords' : IDL.Func([], [IDL.Vec(ClosingRecord)], ['query']),
+    'listCustomers' : IDL.Func([], [IDL.Vec(Customer)], ['query']),
+    'listRegisterSessions' : IDL.Func(
+        [],
+        [IDL.Vec(CashRegisterSession)],
+        ['query'],
+      ),
+    'listSales' : IDL.Func([], [IDL.Vec(Sale)], ['query']),
+    'listSalesByCustomer' : IDL.Func([IDL.Text], [IDL.Vec(Sale)], ['query']),
+    'openRegister' : IDL.Func([OpenRegisterRequest], [CashRegisterSession], []),
+    'recordSale' : IDL.Func(
+        [IDL.Text, IDL.Vec(SaleItem), PaymentMethod, IDL.Int],
+        [Sale],
+        [],
+      ),
+    'updateCustomer' : IDL.Func([UpdateCustomerRequest], [], []),
+  });
+};
 
 export const init = ({ IDL }) => { return []; };

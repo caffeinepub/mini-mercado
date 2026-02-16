@@ -6,9 +6,10 @@ import { InventoryPage } from './pages/InventoryPage';
 import { PosPage } from './pages/PosPage';
 import { CustomersPage } from './pages/CustomersPage';
 import { CashRegisterPage } from './pages/CashRegisterPage';
+import { SalesHistoryPage } from './pages/SalesHistoryPage';
 import { ptBR } from './i18n/ptBR';
 
-type Page = 'dashboard' | 'inventory' | 'pos' | 'customers' | 'cash-register';
+type Page = 'dashboard' | 'inventory' | 'pos' | 'customers' | 'cash-register' | 'sales-history';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
@@ -25,6 +26,8 @@ function App() {
         return <CustomersPage />;
       case 'cash-register':
         return <CashRegisterPage />;
+      case 'sales-history':
+        return <SalesHistoryPage />;
       default:
         return <DashboardPage onNavigate={setCurrentPage} />;
     }

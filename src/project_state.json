@@ -1,117 +1,32 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 5,
-  "summary": "SPA web para gerenciamento de Mini Mercado (estoque, PDV, clientes e fluxo de caixa diário) com foco em usabilidade rápida e persistência via LocalStorage, usando HTML5, Tailwind CSS e JavaScript ES6, com interface em Português (pt-BR).",
-  "architectural_notes": [
-    "Persistência de dados via LocalStorage (produtos, clientes, vendas, aberturas/fechamentos de caixa, histórico).",
-    "Front-end em Single Page Application usando HTML5 + Tailwind CSS + JavaScript ES6.",
-    "Imagens de produtos armazenadas em base64.",
-    "Interface do usuário em Português (pt-BR) (rótulos, mensagens e textos)."
-  ],
+  "projectStateVersion": 3,
+  "summary": "Project includes a sales integration and now needs a sales history screen.",
+  "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-create-a-single-page-app-dashboard-with-large-touch-friendly-navigation-to-inventory-catalog-pos-checkout-customers-and-cash-register-open-close-history-the-layout-must-be-responsive-for-tablet-and-desktop-use",
-      "title": "Create a single-page app dashboard with large, touch-friendly navigation to: Inventory/Catalog, POS (Checkout), Customers, and Cash Register (Open/Close + History). The layout must be responsive for tablet and desktop use.",
+      "id": "feature-add-a-new-sales-history-screen-that-lists-all-recorded-sales-from-the-backend-and-makes-them-easy-to-review-date-time-customer-total-payment-method-and-change-for-cash-payments-with-each-sale-expandable-to-show-item-by-item-details-product-name-quantity-unit-price-subtotal",
+      "title": "Add a new Sales History screen that lists all recorded sales from the backend and makes them easy to review (date/time, customer, total, payment method, and change for cash payments), with each sale expandable to show item-by-item details (product name, quantity, unit price/subtotal).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-localstorage-based-persistence-for-all-app-data-products-customers-sales-daily-cash-sessions-cash-close-history-data-must-survive-page-refresh-and-browser-restart-and-the-ui-must-rehydrate-from-localstorage-on-load",
-      "title": "Implement LocalStorage-based persistence for all app data (products, customers, sales, daily cash sessions, cash close history). Data must survive page refresh and browser restart, and the UI must rehydrate from LocalStorage on load.",
+      "id": "feature-add-navigation-to-the-sales-history-screen-from-the-dashboard-and-from-the-app-s-page-switching-logic-in-frontend-src-app-tsx-extend-the-page-union-and-renderpage-switch-accordingly",
+      "title": "Add navigation to the Sales History screen from the Dashboard and from the app's page-switching logic in `frontend/src/App.tsx` (extend the `Page` union and `renderPage` switch accordingly).",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-build-inventory-catalog-management-allow-creating-editing-and-deleting-products-with-fields-name-category-sale-price-stock-quantity-and-image-upload-stored-as-base64-display-products-in-a-list-table-with-quick-actions-and-basic-sorting-filtering-by-name-category",
-      "title": "Build Inventory & Catalog management: allow creating, editing, and deleting products with fields: Name, Category, Sale Price, Stock Quantity, and Image Upload (stored as base64). Display products in a list/table with quick actions and basic sorting/filtering by name/category.",
+      "id": "feature-extend-the-existing-localization-file-frontend-src-i18n-ptbr-ts-with-the-minimal-new-labels-needed-for-the-sales-history-navigation-and-page-headings-reusing-existing-helpers-e-g-payment-method-label-and-date-formatting-where-appropriate",
+      "title": "Extend the existing localization file `frontend/src/i18n/ptBR.ts` with the minimal new labels needed for the Sales History navigation and page headings, reusing existing helpers (e.g., payment method label and date formatting) where appropriate.",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-prominent-low-stock-visual-indicator-for-products-with-stock-quantity-below-5-units-e-g-badge-row-highlight-and-or-icon-visible-in-inventory-list-and-anywhere-the-product-is-selected-for-sale",
-      "title": "Add a prominent low-stock visual indicator for products with stock quantity below 5 units (e.g., badge, row highlight, and/or icon), visible in inventory list and anywhere the product is selected for sale.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-pos-checkout-flow-with-a-functional-cart-product-search-by-name-or-category-add-remove-items-adjust-quantities-and-show-line-totals-and-cart-total-prevent-adding-quantities-that-exceed-available-stock",
-      "title": "Implement POS (checkout) flow with a functional cart: product search by name or category, add/remove items, adjust quantities, and show line totals and cart total. Prevent adding quantities that exceed available stock.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-checkout-calculator-include-an-input-for-amount-paid-and-automatically-compute-change-based-on-cart-total-provide-a-required-payment-method-selector-with-options-cash-credit-debit-pix-save-the-sale-with-timestamp-items-totals-amount-paid-change-and-payment-method",
-      "title": "Create checkout calculator: include an input for 'Amount Paid' and automatically compute 'Change' based on cart total. Provide a required payment method selector with options: Cash, Credit, Debit, PIX. Save the sale with timestamp, items, totals, amount paid, change, and payment method.",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-the-special-business-rule-if-the-sale-total-is-greater-than-or-equal-to-r-50-00-show-a-highly-visible-highlighted-alert-during-checkout-and-on-the-final-confirmation-state-customer-eligible-for-the-raffle",
-      "title": "Implement the special business rule: if the sale total is greater than or equal to R$ 50.00, show a highly visible highlighted alert during checkout and on the final confirmation state: 'CUSTOMER ELIGIBLE FOR THE RAFFLE!'.",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-build-customer-management-create-edit-and-delete-customers-with-fields-name-and-phone-during-pos-checkout-allow-selecting-an-optional-customer-for-the-sale-maintain-an-individual-purchase-history-per-customer-showing-date-time-items-summary-total-and-payment-method",
-      "title": "Build Customer management: create, edit, and delete customers with fields Name and Phone. During POS checkout, allow selecting an optional customer for the sale. Maintain an individual purchase history per customer showing date/time, items summary, total, and payment method.",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-daily-cash-register-flow-1-open-cash-input-initial-float-starting-cash-2-track-sales-for-the-current-open-day-session-3-close-cash-show-a-report-that-compares-initial-float-sales-total-against-totals-grouped-by-payment-method-cash-credit-debit-pix-store-each-close-event-in-a-closings-history-log-that-can-be-reviewed-later",
-      "title": "Implement Daily Cash Register flow: (1) Open Cash: input initial float (starting cash). (2) Track sales for the current open day/session. (3) Close Cash: show a report that compares (Initial Float + Sales Total) against totals grouped by payment method (Cash, Credit, Debit, PIX). Store each close event in a closings history log that can be reviewed later.",
-      "reqIds": [
-        "REQ-9"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-apply-a-coherent-visual-theme-colors-typography-spacing-component-styling-optimized-for-fast-in-store-use-with-strong-contrast-and-clear-hierarchy-keep-all-user-facing-labels-and-messages-in-english-across-the-ui",
-      "title": "Apply a coherent visual theme (colors, typography, spacing, component styling) optimized for fast in-store use, with strong contrast and clear hierarchy. Keep all user-facing labels and messages in English across the UI.",
-      "reqIds": [
-        "REQ-10"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-convert-all-user-facing-ui-text-across-the-app-from-english-to-portuguese-pt-br-including-page-titles-headings-descriptions-buttons-placeholders-helper-text-alerts-and-empty-states",
-      "title": "Convert all user-facing UI text across the app from English to Portuguese (pt-BR), including page titles, headings, descriptions, buttons, placeholders, helper text, alerts, and empty states.",
-      "reqIds": [
-        "REQ-11"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-translate-all-dynamic-and-validation-error-messages-to-portuguese-pt-br-including-confirm-prompts-and-inline-form-payment-validation-errors",
-      "title": "Translate all dynamic and validation/error messages to Portuguese (pt-BR), including confirm() prompts and inline form/payment validation errors.",
-      "reqIds": [
-        "REQ-12"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-localize-payment-method-labels-and-raffle-eligibility-messaging-to-portuguese-pt-br-while-preserving-stored-internal-values-to-avoid-breaking-existing-persisted-data",
-      "title": "Localize payment-method labels and raffle-eligibility messaging to Portuguese (pt-BR) while preserving stored/internal values to avoid breaking existing persisted data.",
-      "reqIds": [
-        "REQ-13"
       ],
       "version": 1
     }
@@ -119,49 +34,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Gestão de estoque e catálogo: cadastro/edição de produtos (nome, categoria, preço, quantidade) com upload de imagem base64 e alerta visual para estoque < 5.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "PDV (frente de caixa): carrinho de compras com busca por nome/categoria, finalização com 'Valor Pago' e cálculo de troco, e seleção de forma de pagamento (Dinheiro, Crédito, Débito, PIX).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Regra de negócio: ao finalizar venda com total >= R$ 50,00, exibir alerta destacado 'CLIENTE APTO AO SORTEIO!'.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Gestão de clientes: cadastro (nome, telefone) e histórico individual de compras vinculado ao cliente.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Fluxo de caixa diário: abertura de caixa (fundo inicial), fechamento com relatório (fundo inicial + vendas do dia) e comparação com totais por método de pagamento; salvar histórico de fechamentos anteriores.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Interface: dashboard limpo com botões grandes e design responsivo para tablet/PC.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Localização/tradução da interface para Português (pt-BR): converter todos os rótulos, botões, mensagens e textos do app de inglês para pt-BR.",
+      "summary": "Add a sales history screen (tela de histórico de vendas).",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "Mini Mercado",
+  "projectName": "Add a Sales History screen",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -4,15 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { DollarSign } from 'lucide-react';
+import { DollarSign, Loader2 } from 'lucide-react';
 import { ptBR } from '../../i18n/ptBR';
 
 interface CashOpenPanelProps {
   onOpen: (initialFloat: number) => void;
   isOpen: boolean;
+  isOpening?: boolean;
 }
 
-export function CashOpenPanel({ onOpen, isOpen }: CashOpenPanelProps) {
+export function CashOpenPanel({ onOpen, isOpen, isOpening }: CashOpenPanelProps) {
   const [initialFloat, setInitialFloat] = useState('');
 
   const handleOpen = () => {
@@ -53,11 +54,21 @@ export function CashOpenPanel({ onOpen, isOpen }: CashOpenPanelProps) {
               value={initialFloat}
               onChange={(e) => setInitialFloat(e.target.value)}
               placeholder="0.00"
+              disabled={isOpening}
             />
           </div>
-          <Button onClick={handleOpen} disabled={!initialFloat} size="lg">
-            <DollarSign className="h-4 w-4 mr-2" />
-            {ptBR.openCashRegister}
+          <Button onClick={handleOpen} disabled={!initialFloat || isOpening} size="lg">
+            {isOpening ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Abrindo...
+              </>
+            ) : (
+              <>
+                <DollarSign className="h-4 w-4 mr-2" />
+                {ptBR.openCashRegister}
+              </>
+            )}
           </Button>
         </div>
       </CardContent>

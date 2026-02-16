@@ -8,17 +8,23 @@ interface AppStore extends AppState {
   updateProduct: (id: string, updates: Partial<Omit<Product, 'id' | 'createdAt'>>) => void;
   deleteProduct: (id: string) => void;
   
-  // Customer actions
+  // Customer actions (kept for backward compatibility, but backend should be used)
   addCustomer: (customer: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateCustomer: (id: string, updates: Partial<Omit<Customer, 'id' | 'createdAt'>>) => void;
   deleteCustomer: (id: string) => void;
   
-  // Sale actions
+  // Sale actions (kept for backward compatibility, but backend should be used)
   addSale: (sale: Omit<Sale, 'id' | 'timestamp'>) => void;
   
-  // Cash session actions
+  // Cash session actions (kept for backward compatibility, but backend should be used)
   openCashSession: (initialFloat: number) => void;
   closeCashSession: (closeRecord: Omit<CashCloseRecord, 'id' | 'closedAt'>) => void;
+  
+  // Backend-driven setters
+  setSales: (sales: Sale[]) => void;
+  setCustomers: (customers: Customer[]) => void;
+  setCurrentCashSession: (session: CashSession | undefined) => void;
+  setCashCloseHistory: (history: CashCloseRecord[]) => void;
   
   // Utility
   rehydrate: () => void;
@@ -164,6 +170,23 @@ export const useAppStore = create<AppStore>((set, get) => ({
       saveState(newState);
       return newState;
     });
+  },
+  
+  // Backend-driven setters
+  setSales: (sales) => {
+    set((state) => ({ ...state, sales }));
+  },
+  
+  setCustomers: (customers) => {
+    set((state) => ({ ...state, customers }));
+  },
+  
+  setCurrentCashSession: (session) => {
+    set((state) => ({ ...state, currentCashSession: session }));
+  },
+  
+  setCashCloseHistory: (history) => {
+    set((state) => ({ ...state, cashCloseHistory: history }));
   },
   
   rehydrate: () => {

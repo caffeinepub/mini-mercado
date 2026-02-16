@@ -10,7 +10,86 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface _SERVICE {}
+export interface CashRegisterSession {
+  'id' : bigint,
+  'closeTime' : [] | [Time],
+  'isOpen' : boolean,
+  'finalBalanceCents' : [] | [bigint],
+  'initialFloatCents' : bigint,
+  'openTime' : Time,
+}
+export interface CloseRegisterRequest {
+  'sessionId' : bigint,
+  'finalBalanceCents' : bigint,
+}
+export interface ClosingRecord {
+  'id' : bigint,
+  'closeTime' : Time,
+  'sessionId' : bigint,
+  'finalBalanceCents' : bigint,
+}
+export interface CreateCustomerRequest {
+  'id' : string,
+  'name' : string,
+  'phone' : string,
+}
+export interface Customer {
+  'id' : string,
+  'eligibleForRaffle' : boolean,
+  'name' : string,
+  'totalPurchasesCents' : bigint,
+  'phone' : string,
+}
+export interface OpenRegisterRequest { 'initialFloatCents' : bigint }
+export type PaymentMethod = { 'card' : null } |
+  { 'cash' : null };
+export interface Sale {
+  'id' : bigint,
+  'paymentMethod' : PaymentMethod,
+  'date' : Time,
+  'totalCents' : bigint,
+  'changeCents' : bigint,
+  'customerId' : string,
+  'items' : Array<SaleItem>,
+}
+export interface SaleItem {
+  'itemId' : string,
+  'name' : string,
+  'totalCents' : bigint,
+  'quantity' : bigint,
+  'priceCents' : bigint,
+}
+export type Time = bigint;
+export interface UpdateCustomerRequest {
+  'id' : string,
+  'name' : string,
+  'phone' : string,
+}
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
+export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'closeRegister' : ActorMethod<[CloseRegisterRequest], undefined>,
+  'createCustomer' : ActorMethod<[CreateCustomerRequest], Customer>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getCustomer' : ActorMethod<[string], Customer>,
+  'getOpenRegisterSession' : ActorMethod<[], [] | [CashRegisterSession]>,
+  'getSale' : ActorMethod<[bigint], [] | [Sale]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'listClosingRecords' : ActorMethod<[], Array<ClosingRecord>>,
+  'listCustomers' : ActorMethod<[], Array<Customer>>,
+  'listRegisterSessions' : ActorMethod<[], Array<CashRegisterSession>>,
+  'listSales' : ActorMethod<[], Array<Sale>>,
+  'listSalesByCustomer' : ActorMethod<[string], Array<Sale>>,
+  'openRegister' : ActorMethod<[OpenRegisterRequest], CashRegisterSession>,
+  'recordSale' : ActorMethod<
+    [string, Array<SaleItem>, PaymentMethod, bigint],
+    Sale
+  >,
+  'updateCustomer' : ActorMethod<[UpdateCustomerRequest], undefined>,
+}
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
 export declare const idlFactory: IDL.InterfaceFactory;

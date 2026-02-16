@@ -1,205 +1,58 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Localizar toda a interface para Português (pt-BR)",
+  "title": "Add Sales History screen (frontend)",
   "requirements": [
     {
-      "id": "REQ-11",
-      "summary": "Traduzir todos os textos visíveis da interface para pt-BR (títulos, headings, descrições, botões, placeholders, estados vazios e navegação).",
+      "id": "REQ-1",
+      "summary": "Create a Sales History page that fetches and displays all backend sales with expandable line-item details and clear loading/empty states.",
       "acceptanceCriteria": [
-        "All visible UI strings throughout the app display in Portuguese (pt-BR).",
-        "Key screens are translated: Dashboard, Inventory, POS, Customers, Cash Register.",
-        "Header and navigation text are translated (e.g., the Dashboard button and top-level page headings).",
-        "No obvious English UI strings remain (excluding proper nouns/brand names if kept intentionally)."
+        "A new page component exists for Sales History and is reachable in the app UI.",
+        "The page fetches sales via the existing React Query hook `useListSales()` and renders results without using local mocked data.",
+        "Each sale row/card shows at least: timestamp (formatted), total amount, payment method label, and cash change when applicable.",
+        "Expanding a sale reveals its line items with quantity and per-item totals/subtotals.",
+        "The UI clearly handles loading and empty states."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/i18n/ptBR.ts",
+          "path": "frontend/src/pages/SalesHistoryPage.tsx",
           "operation": "create",
-          "description": "Adicionar um módulo simples de strings pt-BR e helpers de exibição (ex.: labels comuns, labels de categorias e helper para datas em pt-BR) para reutilização na UI."
-        },
+          "description": "Implement Sales History page UI: fetch sales via `useListSales()` (no mocked data), format timestamps with `formatDateTimePtBR`, format amounts with `formatCurrency`, and label payment method with `getPaymentMethodLabel`. Also fetch customers via `useListCustomers()` to display customer name from `customerId`. Render each sale in a shadcn Card with an expandable section (e.g., details/summary or composed shadcn Collapsible/Accordion) showing item name, quantity, unit price, and line subtotal. Include explicit loading and empty states. Use existing shadcn-ui components (e.g., Card, Button, Separator, Badge) to compose the layout; verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Wire Sales History into app navigation from Dashboard and App page-switching logic.",
+      "acceptanceCriteria": [
+        "Dashboard includes a new card/menu option that navigates to the Sales History screen.",
+        "`frontend/src/App.tsx` supports the new page key and correctly renders the Sales History page when selected.",
+        "Returning to Dashboard via the existing header button works from the Sales History screen."
+      ],
+      "file_operations": [
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Traduzir textos do cabeçalho/rodapé (ex.: botão “Dashboard”, texto do footer) para pt-BR e usar strings centralizadas quando aplicável."
+          "description": "Extend the `Page` union to include a Sales History page key (e.g., 'sales-history') and update `renderPage` switch to render the new `SalesHistoryPage` when selected. Ensure existing header Dashboard button continues to return to 'dashboard' from this screen."
         },
         {
           "path": "frontend/src/pages/DashboardPage.tsx",
           "operation": "modify",
-          "description": "Traduzir títulos e descrições dos cards do Dashboard para pt-BR usando as strings do módulo de i18n quando aplicável."
-        },
-        {
-          "path": "frontend/src/pages/InventoryPage.tsx",
-          "operation": "modify",
-          "description": "Traduzir título/descrição e CTA principal de Inventário para pt-BR."
-        },
-        {
-          "path": "frontend/src/features/inventory/ProductFilters.tsx",
-          "operation": "modify",
-          "description": "Traduzir labels e placeholders (busca e filtro) para pt-BR; exibir 'Todas as categorias' em pt-BR mantendo o value interno (ex.: 'all')."
-        },
-        {
-          "path": "frontend/src/features/inventory/ProductFormDialog.tsx",
-          "operation": "modify",
-          "description": "Traduzir título do diálogo, labels de campos, placeholders, botões e mensagens (ex.: “Saving...”) para pt-BR; manter valores internos de categoria (compatibilidade com LocalStorage) exibindo label pt-BR via mapeamento. Não editar arquivos em frontend/src/components/ui (read-only)."
-        },
-        {
-          "path": "frontend/src/features/inventory/ProductTable.tsx",
-          "operation": "modify",
-          "description": "Traduzir cabeçalhos da tabela, estado vazio, 'No image', 'Low', 'Actions' e demais strings para pt-BR; manter dados internos inalterados."
-        },
-        {
-          "path": "frontend/src/pages/CustomersPage.tsx",
-          "operation": "modify",
-          "description": "Traduzir título/descrição, CTA e textos visíveis (incluindo mensagens de alerta exibidas na página) para pt-BR."
-        },
-        {
-          "path": "frontend/src/features/customers/CustomersList.tsx",
-          "operation": "modify",
-          "description": "Traduzir estado vazio e cabeçalhos/ações da listagem de clientes para pt-BR."
-        },
-        {
-          "path": "frontend/src/features/customers/CustomerFormDialog.tsx",
-          "operation": "modify",
-          "description": "Traduzir títulos, labels, placeholders e botões do formulário de cliente para pt-BR (incluindo “Saving...” quando aplicável)."
-        },
-        {
-          "path": "frontend/src/features/customers/CustomerDetail.tsx",
-          "operation": "modify",
-          "description": "Traduzir títulos e estados vazios (histórico de compras) para pt-BR e trocar formatação de data/hora para locale pt-BR (substituir en-US)."
-        },
-        {
-          "path": "frontend/src/pages/PosPage.tsx",
-          "operation": "modify",
-          "description": "Traduzir títulos, descrições, headings (Produtos/Carrinho/Checkout), estado de conclusão de venda e CTA de nova venda para pt-BR."
-        },
-        {
-          "path": "frontend/src/features/pos/ProductPicker.tsx",
-          "operation": "modify",
-          "description": "Traduzir labels, placeholders, badges, textos de estoque e estados vazios para pt-BR; manter valores internos (ex.: categorias) e usar mapeamento para exibição quando necessário."
-        },
-        {
-          "path": "frontend/src/features/pos/CartPanel.tsx",
-          "operation": "modify",
-          "description": "Traduzir estado vazio, 'each', 'Total' e demais strings para pt-BR."
-        },
-        {
-          "path": "frontend/src/pages/CashRegisterPage.tsx",
-          "operation": "modify",
-          "description": "Traduzir título e descrição da página do Caixa para pt-BR."
-        },
-        {
-          "path": "frontend/src/features/cashregister/CashOpenPanel.tsx",
-          "operation": "modify",
-          "description": "Traduzir títulos/descrições, labels, placeholders e alertas do painel de abertura de caixa para pt-BR."
-        },
-        {
-          "path": "frontend/src/features/cashregister/CashClosePanel.tsx",
-          "operation": "modify",
-          "description": "Traduzir títulos/descrições, labels (totais e detalhamento), CTA e alertas para pt-BR; ajustar formatação de data/hora para pt-BR (substituir en-US)."
-        },
-        {
-          "path": "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
-          "operation": "modify",
-          "description": "Traduzir título, estado vazio e rótulos do histórico de fechamentos para pt-BR; ajustar formatação de data/hora para pt-BR (substituir en-US)."
+          "description": "Add a new Dashboard navigation card/menu item that calls `onNavigate` with the Sales History page key and uses new localized title/description labels. Compose the UI using existing shadcn-ui Card patterns already used in this file; verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-12",
-      "summary": "Traduzir mensagens dinâmicas, confirmações e erros/validações (incluindo confirm() e alertas) para pt-BR.",
+      "id": "REQ-3",
+      "summary": "Add minimal pt-BR localization labels required for Sales History navigation and headings, reusing existing helpers.",
       "acceptanceCriteria": [
-        "Inventory delete confirmation prompt is in pt-BR (currently: \"Are you sure you want to delete...\").",
-        "Customer delete confirmation and the 'cannot delete due to purchase history' error message are in pt-BR.",
-        "POS checkout validation errors are in pt-BR (e.g., missing payment method, insufficient cash amount).",
-        "Cash-register warnings/alerts (e.g., register not open) are in pt-BR."
+        "New UI labels for the Sales History screen and its Dashboard menu entry are defined in `ptBR` and used by the new components (no hard-coded strings in the page where avoidable)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/InventoryPage.tsx",
+          "path": "frontend/src/i18n/ptBR.ts",
           "operation": "modify",
-          "description": "Substituir o confirm() de exclusão de produto por mensagem pt-BR (mantendo interpolação do nome do produto)."
-        },
-        {
-          "path": "frontend/src/pages/CustomersPage.tsx",
-          "operation": "modify",
-          "description": "Traduzir: (1) confirm() de exclusão de cliente, (2) mensagem de erro quando não pode excluir por histórico de compras, para pt-BR (mantendo dados dinâmicos como nome e quantidade)."
-        },
-        {
-          "path": "frontend/src/features/pos/payment.ts",
-          "operation": "modify",
-          "description": "Traduzir mensagens de validação relacionadas a pagamento em dinheiro para pt-BR (ex.: valor pago insuficiente). Manter a lógica e valores internos inalterados."
-        },
-        {
-          "path": "frontend/src/features/pos/CheckoutPanel.tsx",
-          "operation": "modify",
-          "description": "Traduzir erros inline (ex.: seleção obrigatória de método de pagamento) e textos auxiliares exibidos no checkout para pt-BR."
-        },
-        {
-          "path": "frontend/src/features/pos/useCart.ts",
-          "operation": "modify",
-          "description": "Traduzir mensagens dinâmicas de erro de estoque (ex.: 'Only X units available in stock') para pt-BR mantendo interpolação numérica."
-        },
-        {
-          "path": "frontend/src/pages/PosPage.tsx",
-          "operation": "modify",
-          "description": "Traduzir alerta quando o caixa não está aberto para pt-BR (warning/alert do POS)."
-        },
-        {
-          "path": "frontend/src/features/cashregister/CashOpenPanel.tsx",
-          "operation": "modify",
-          "description": "Traduzir alertas/avisos do caixa (ex.: já está aberto) para pt-BR."
-        },
-        {
-          "path": "frontend/src/features/cashregister/CashClosePanel.tsx",
-          "operation": "modify",
-          "description": "Traduzir alerta destrutivo quando não há sessão de caixa aberta para pt-BR."
-        }
-      ]
-    },
-    {
-      "id": "REQ-13",
-      "summary": "Localizar labels de método de pagamento e a mensagem de elegibilidade para sorteio para pt-BR, preservando valores internos/persistidos.",
-      "acceptanceCriteria": [
-        "Payment method UI displays pt-BR labels (e.g., Dinheiro, Crédito, Débito, PIX) without changing persisted sale records or internal PaymentMethod values already stored.",
-        "The raffle eligibility alert message is shown in pt-BR on both checkout and completion states.",
-        "POS checkout field labels are in pt-BR (e.g., Payment Method, Amount Paid, Change, Complete Sale)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/pos/payment.ts",
-          "operation": "modify",
-          "description": "Adicionar mapeamento de exibição pt-BR para PaymentMethod (ex.: 'Cash'->'Dinheiro', 'Credit'->'Crédito', 'Debit'->'Débito', 'PIX'->'PIX') e expor helper para label, mantendo PAYMENT_METHODS e valores internos/persistidos sem alterações."
-        },
-        {
-          "path": "frontend/src/features/pos/CheckoutPanel.tsx",
-          "operation": "modify",
-          "description": "Atualizar o Select de método de pagamento para renderizar labels pt-BR via helper/mapeamento, mantendo o value interno como PaymentMethod; traduzir labels dos campos (método, valor pago, troco, concluir venda) para pt-BR."
-        },
-        {
-          "path": "frontend/src/features/pos/RaffleEligibilityAlert.tsx",
-          "operation": "modify",
-          "description": "Traduzir a mensagem de elegibilidade ao sorteio para pt-BR e manter o comportamento (aparece em checkout e pós-conclusão via uso existente no POS)."
-        },
-        {
-          "path": "frontend/src/pages/PosPage.tsx",
-          "operation": "modify",
-          "description": "Garantir que o estado de conclusão e a área de checkout exibem a mensagem de sorteio em pt-BR (mantendo o mesmo fluxo/condições)."
-        },
-        {
-          "path": "frontend/src/features/customers/CustomerDetail.tsx",
-          "operation": "modify",
-          "description": "Exibir o método de pagamento no histórico do cliente com label pt-BR via helper/mapeamento, mantendo o valor persistido original em Sale.paymentMethod."
-        },
-        {
-          "path": "frontend/src/features/cashregister/CashClosePanel.tsx",
-          "operation": "modify",
-          "description": "Traduzir os rótulos do detalhamento por método de pagamento para pt-BR (ex.: 'Cash'->'Dinheiro'), mantendo os campos/valores internos do relatório inalterados."
-        },
-        {
-          "path": "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
-          "operation": "modify",
-          "description": "Traduzir os rótulos resumidos por método de pagamento para pt-BR (Dinheiro/Crédito/Débito/PIX), mantendo os valores internos inalterados."
+          "description": "Add minimal new pt-BR labels for the Sales History feature (Dashboard card title/description and page heading/empty message as needed). Ensure the Sales History page uses these labels and continues to reuse existing helpers like `getPaymentMethodLabel` and `formatDateTimePtBR` where applicable."
         }
       ]
     }

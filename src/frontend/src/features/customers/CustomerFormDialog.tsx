@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Loader2 } from 'lucide-react';
 import type { Customer } from '../../types/domain';
 import { ptBR } from '../../i18n/ptBR';
 
@@ -10,13 +18,13 @@ interface CustomerFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   customer?: Customer;
-  onSave: (data: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSave: (customer: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  isSaving?: boolean;
 }
 
-export function CustomerFormDialog({ open, onOpenChange, customer, onSave }: CustomerFormDialogProps) {
+export function CustomerFormDialog({ open, onOpenChange, customer, onSave, isSaving }: CustomerFormDialogProps) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (customer) {
@@ -28,56 +36,60 @@ export function CustomerFormDialog({ open, onOpenChange, customer, onSave }: Cus
     }
   }, [customer, open]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      onSave({ name, phone });
-      onOpenChange(false);
-    } finally {
-      setIsSubmitting(false);
-    }
+    onSave({ name, phone });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>{customer ? ptBR.editCustomer : ptBR.addNewCustomer}</DialogTitle>
+          <DialogTitle>
+            {customer ? ptBR.editCustomer : ptBR.addNewCustomer}
+          </DialogTitle>
+          <DialogDescription>
+            {customer ? 'Edite as informações do cliente' : 'Adicione um novo cliente ao sistema'}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="customer-name">{ptBR.customerName}</Label>
+              <Label htmlFor="name">{ptBR.customerName}</Label>
               <Input
-                id="customer-name"
+                id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                required
                 placeholder={ptBR.customerNamePlaceholder}
+                required
+                disabled={isSaving}
               />
             </div>
-            
             <div className="grid gap-2">
-              <Label htmlFor="customer-phone">{ptBR.phoneNumber}</Label>
+              <Label htmlFor="phone">{ptBR.phoneNumber}</Label>
               <Input
-                id="customer-phone"
-                type="tel"
+                id="phone"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                required
                 placeholder={ptBR.phoneNumberPlaceholder}
+                required
+                disabled={isSaving}
               />
             </div>
           </div>
-          
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
               {ptBR.cancel}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? ptBR.saving : ptBR.saveCustomer}
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {ptBR.saving}
+                </>
+              ) : (
+                ptBR.saveCustomer
+              )}
             </Button>
           </DialogFooter>
         </form>

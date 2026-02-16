@@ -1,9 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, ShoppingCart, Users, DollarSign } from 'lucide-react';
+import { Package, ShoppingCart, Users, DollarSign, History } from 'lucide-react';
 import { ptBR } from '../i18n/ptBR';
 
 interface DashboardPageProps {
-  onNavigate: (page: 'inventory' | 'pos' | 'customers' | 'cash-register') => void;
+  onNavigate: (page: 'inventory' | 'pos' | 'customers' | 'cash-register' | 'sales-history') => void;
 }
 
 export function DashboardPage({ onNavigate }: DashboardPageProps) {
@@ -35,6 +35,13 @@ export function DashboardPage({ onNavigate }: DashboardPageProps) {
       description: ptBR.cashRegisterDescription,
       icon: DollarSign,
       color: 'text-chart-4',
+    },
+    {
+      id: 'sales-history' as const,
+      title: ptBR.salesHistory,
+      description: ptBR.salesHistoryDescription,
+      icon: History,
+      color: 'text-chart-5',
     },
   ];
 

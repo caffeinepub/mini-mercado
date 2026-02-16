@@ -17,6 +17,8 @@ export interface Customer {
   phone: string;
   createdAt: number;
   updatedAt: number;
+  totalPurchasesCents?: number;
+  eligibleForRaffle?: boolean;
 }
 
 export type PaymentMethod = 'Cash' | 'Credit' | 'Debit' | 'PIX';

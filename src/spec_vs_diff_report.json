@@ -1,55 +1,43 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T02:30:59.637Z",
-  "summary": "Diff introduces a new pt-BR string map (frontend/src/i18n/ptBR.ts) and updates many UI components/pages (App shell, Dashboard, Inventory, Customers, POS cart/checkout, Cash Register) to use Portuguese display strings. Payment method labels are mapped to pt-BR via helper functions while keeping internal values like 'Cash'/'Credit' unchanged. Some required UI areas may still contain English because several modified files were omitted/truncated in the diff summary, and key POS/Cash Register flows beyond the shown components are not evidenced as fully translated.",
+  "generatedAt": "2026-02-16T02:13:58.026Z",
+  "summary": "Sales History page and navigation were added (Dashboard card + App.tsx page switch). The Sales History UI uses useListSales() and shows loading/empty states, but the diff is truncated so item-by-item expandable details cannot be confirmed. Localization appears incomplete/mismatched: the new page references ptBR keys that are not shown as added in ptBR.ts.",
   "missing_requirements": [
     {
-      "id": "REQ-11",
-      "requirement": "Convert all user-facing UI text across the app from English to Portuguese (pt-BR), including page titles, headings, descriptions, buttons, placeholders, helper text, alerts, and empty states.",
-      "reason": "The diff summary does not show translations applied across all screens/components in the app. Several modified files are omitted and multiple files are truncated; key POS and other areas (e.g., overall POS page wrapper, sale completion screen, any remaining navigation/header/footer text beyond what is shown) cannot be verified as fully localized from the provided evidence.",
+      "id": "REQ-1",
+      "requirement": "Each sale is expandable to show item-by-item details (product name, quantity, unit price/subtotal).",
+      "reason": "SalesHistoryPage.tsx is truncated before the expanded content; the diff excerpt does not show any rendering of sale line items (name/qty/unit price/subtotal) inside the collapsible content.",
       "evidence": [
-        "<file-diff>: Omitted files due to limits: modified=3",
-        "frontend/src/features/pos/ProductPicker.tsx (truncated)",
-        "frontend/src/features/inventory/ProductFormDialog.tsx (truncated)"
+        "frontend/src/pages/SalesHistoryPage.tsx (truncated)"
       ]
     },
     {
-      "id": "REQ-12",
-      "requirement": "Translate all dynamic and validation/error messages to Portuguese (pt-BR), including confirm() prompts and inline form/payment validation errors.",
-      "reason": "Some required dynamic messages are translated (inventory/customer delete confirms; POS payment errors; cash-register not-open warning), but the diff summary is incomplete (omitted/truncated files). Therefore, it cannot be confirmed that *all* dynamic/validation/error messages throughout the app are translated.",
+      "id": "REQ-3",
+      "requirement": "Extend ptBR with minimal new labels needed for the Sales History navigation and page headings; use those labels from the new components (avoid hard-coded strings).",
+      "reason": "SalesHistoryPage.tsx references localization keys that are not present in the shown ptBR.ts excerpt (e.g., ptBR.salesHistoryDesc vs the file shows salesHistoryDescription; also ptBR.loadingSales, ptBR.noSalesFound, ptBR.sale are referenced but not evidenced as added). This suggests missing/incorrect ptBR entries and/or inconsistent key usage.",
       "evidence": [
-        "<file-diff>: Omitted files due to limits: modified=3",
+        "frontend/src/pages/SalesHistoryPage.tsx (truncated)",
         "frontend/src/i18n/ptBR.ts (truncated)"
       ]
     }
   ],
-  "hallucinated_features": [],
+  "hallucinated_features": [
+    {
+      "description": "Sales History page additionally fetches customers via useListCustomers() and resolves customer names from customerId.",
+      "reason": "The BuildRequest only specified fetching sales via useListSales(); customer fetching is not requested and introduces additional data dependency.",
+      "evidence": [
+        "frontend/src/pages/SalesHistoryPage.tsx (truncated)"
+      ]
+    }
+  ],
   "confidence": 0.62,
   "changed_files": [
     "frontend-file-summaries.txt",
     "frontend/src/App.tsx",
-    "frontend/src/features/cashregister/CashClosePanel.tsx",
-    "frontend/src/features/cashregister/CashOpenPanel.tsx",
-    "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
-    "frontend/src/features/customers/CustomerDetail.tsx",
-    "frontend/src/features/customers/CustomerFormDialog.tsx",
-    "frontend/src/features/customers/CustomersList.tsx",
-    "frontend/src/features/inventory/ProductFilters.tsx",
-    "frontend/src/features/inventory/ProductFormDialog.tsx",
-    "frontend/src/features/inventory/ProductTable.tsx",
-    "frontend/src/features/pos/CartPanel.tsx",
-    "frontend/src/features/pos/CheckoutPanel.tsx",
-    "frontend/src/features/pos/ProductPicker.tsx",
-    "frontend/src/features/pos/RaffleEligibilityAlert.tsx",
-    "frontend/src/features/pos/payment.ts",
-    "frontend/src/features/pos/useCart.ts",
     "frontend/src/i18n/ptBR.ts",
-    "frontend/src/pages/CashRegisterPage.tsx",
-    "frontend/src/pages/CustomersPage.tsx",
     "frontend/src/pages/DashboardPage.tsx",
-    "frontend/src/pages/InventoryPage.tsx",
-    "frontend/src/pages/PosPage.tsx",
+    "frontend/src/pages/SalesHistoryPage.tsx",
     "project_state.json"
   ]
 }
