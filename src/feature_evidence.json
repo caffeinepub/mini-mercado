@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-new-sales-history-screen-that-lists-all-recorded-sales-from-the-backend-and-makes-them-easy-to-review-date-time-customer-total-payment-method-and-change-for-cash-payments-with-each-sale-expandable-to-show-item-by-item-details-product-name-quantity-unit-price-subtotal",
-      "featureTitle": "Add a new Sales History screen that lists all recorded sales from the backend and makes them easy to review (date/time, customer, total, payment method, and change for cash payments), with each sale expandable to show item-by-item details (product name, quantity, unit price/subtotal).",
+      "featureId": "feature-fix-the-payment-method-mapping-in-frontend-src-backend-mappers-ts-to-ensure-correct-bidirectional-conversion-between-frontend-paymentmethod-enum-values-pix-debit-credit-and-backend-string-values-pix-debito-credito-without-any-incorrect-defaults",
+      "featureTitle": "Fix the payment method mapping in frontend/src/backend/mappers.ts to ensure correct bidirectional conversion between frontend PaymentMethod enum values (PIX, DEBIT, CREDIT) and backend string values (pix, debito, credito) without any incorrect defaults.",
       "files": [
-        "frontend/src/pages/SalesHistoryPage.tsx"
+        "frontend/src/backend/mappers.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -13,49 +13,52 @@
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
         "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-navigation-to-the-sales-history-screen-from-the-dashboard-and-from-the-app-s-page-switching-logic-in-frontend-src-app-tsx-extend-the-page-union-and-renderpage-switch-accordingly",
-      "featureTitle": "Add navigation to the Sales History screen from the Dashboard and from the app's page-switching logic in `frontend/src/App.tsx` (extend the `Page` union and `renderPage` switch accordingly).",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/pages/DashboardPage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-extend-the-existing-localization-file-frontend-src-i18n-ptbr-ts-with-the-minimal-new-labels-needed-for-the-sales-history-navigation-and-page-headings-reusing-existing-helpers-e-g-payment-method-label-and-date-formatting-where-appropriate",
-      "featureTitle": "Extend the existing localization file `frontend/src/i18n/ptBR.ts` with the minimal new labels needed for the Sales History navigation and page headings, reusing existing helpers (e.g., payment method label and date formatting) where appropriate.",
-      "files": [
-        "frontend/src/i18n/ptBR.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
       ],
       "testIds": [
         "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-sales-report-query-logic-in-frontend-src-features-cashregister-reporting-ts-to-correctly-group-and-aggregate-sales-by-the-three-distinct-payment-methods-pix-debito-credito-displaying-separate-totals-for-each-method",
+      "featureTitle": "Update the sales report query logic in frontend/src/features/cashregister/reporting.ts to correctly group and aggregate sales by the three distinct payment methods (pix, debito, credito), displaying separate totals for each method.",
+      "files": [
+        "frontend/src/features/cashregister/CashClosePanel.tsx",
+        "frontend/src/features/cashregister/reporting.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-payment-method-confirmation-display-in-the-sale-summary-section-of-frontend-src-features-pos-checkoutpanel-tsx-that-clearly-shows-payment-selected-method-before-the-user-clicks-the-complete-sale-button",
+      "featureTitle": "Add a payment method confirmation display in the sale summary section of frontend/src/features/pos/CheckoutPanel.tsx that clearly shows 'Payment: [Selected Method]' before the user clicks the 'Complete Sale' button.",
+      "files": [
+        "frontend/src/features/pos/CheckoutPanel.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
       ],
       "confidence": "high"
     }

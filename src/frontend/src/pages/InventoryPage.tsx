@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { useAppStore } from '../hooks/useAppStore';
 import { ProductFormDialog } from '../features/inventory/ProductFormDialog';
 import { ProductTable } from '../features/inventory/ProductTable';
 import { ProductFilters } from '../features/inventory/ProductFilters';
+import { useAppStore } from '../hooks/useAppStore';
 import { ptBR } from '../i18n/ptBR';
 import type { Product } from '../types/domain';
 
@@ -13,11 +13,12 @@ export function InventoryPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
+  // Extract unique categories from products
   const categories = useMemo(() => {
-    const cats = new Set(products.map((p) => p.category));
-    return Array.from(cats).sort();
+    const uniqueCategories = new Set(products.map((p) => p.category));
+    return Array.from(uniqueCategories).sort();
   }, [products]);
 
   const filteredProducts = useMemo(() => {
@@ -28,36 +29,45 @@ export function InventoryPage() {
     });
   }, [products, searchTerm, categoryFilter]);
 
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     setEditingProduct(undefined);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleEdit = (product: Product) => {
+  const handleEdit = useCallback((product: Product) => {
     setEditingProduct(product);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleSave = (data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleSave = useCallback((data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingProduct) {
       updateProduct(editingProduct.id, data);
     } else {
       addProduct(data);
     }
-  };
+    setDialogOpen(false);
+  }, [editingProduct, addProduct, updateProduct]);
 
-  const handleDelete = (product: Product) => {
-    if (confirm(ptBR.deleteProductConfirm(product.name))) {
+  const handleDelete = useCallback((product: Product) => {
+    if (confirm(`Tem certeza que deseja excluir ${product.name}?`)) {
       deleteProduct(product.id);
     }
-  };
+  }, [deleteProduct]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+  }, []);
+
+  const handleCategoryChange = useCallback((value: string) => {
+    setCategoryFilter(value);
+  }, []);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{ptBR.inventoryManagement}</h1>
-          <p className="text-muted-foreground mt-1">{ptBR.inventoryManagementDesc}</p>
+          <h1 className="text-3xl font-bold">{ptBR.inventory}</h1>
+          <p className="text-muted-foreground mt-1">{ptBR.inventoryDescription}</p>
         </div>
         <Button onClick={handleAdd} size="lg">
           <Plus className="h-5 w-5 mr-2" />
@@ -67,9 +77,9 @@ export function InventoryPage() {
 
       <ProductFilters
         searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
+        onSearchChange={handleSearchChange}
         categoryFilter={categoryFilter}
-        onCategoryChange={setCategoryFilter}
+        onCategoryChange={handleCategoryChange}
         categories={categories}
       />
 

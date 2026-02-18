@@ -1,43 +1,34 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T02:13:58.026Z",
-  "summary": "Sales History page and navigation were added (Dashboard card + App.tsx page switch). The Sales History UI uses useListSales() and shows loading/empty states, but the diff is truncated so item-by-item expandable details cannot be confirmed. Localization appears incomplete/mismatched: the new page references ptBR keys that are not shown as added in ptBR.ts.",
-  "missing_requirements": [
-    {
-      "id": "REQ-1",
-      "requirement": "Each sale is expandable to show item-by-item details (product name, quantity, unit price/subtotal).",
-      "reason": "SalesHistoryPage.tsx is truncated before the expanded content; the diff excerpt does not show any rendering of sale line items (name/qty/unit price/subtotal) inside the collapsible content.",
-      "evidence": [
-        "frontend/src/pages/SalesHistoryPage.tsx (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "Extend ptBR with minimal new labels needed for the Sales History navigation and page headings; use those labels from the new components (avoid hard-coded strings).",
-      "reason": "SalesHistoryPage.tsx references localization keys that are not present in the shown ptBR.ts excerpt (e.g., ptBR.salesHistoryDesc vs the file shows salesHistoryDescription; also ptBR.loadingSales, ptBR.noSalesFound, ptBR.sale are referenced but not evidenced as added). This suggests missing/incorrect ptBR entries and/or inconsistent key usage.",
-      "evidence": [
-        "frontend/src/pages/SalesHistoryPage.tsx (truncated)",
-        "frontend/src/i18n/ptBR.ts (truncated)"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-18T22:07:30.715Z",
+  "summary": "The diff implements payment method bug fixes across backend and frontend. Backend introduces a new PaymentMethod variant type (#pix, #debito, #credito) and migration logic. Frontend updates mappers to handle three payment methods (PIX, Debit, Credit), reporting to aggregate by payment method, and CheckoutPanel to display payment method confirmation. All five requirements appear to be addressed.",
+  "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Sales History page additionally fetches customers via useListCustomers() and resolves customer names from customerId.",
-      "reason": "The BuildRequest only specified fetching sales via useListSales(); customer fetching is not requested and introduces additional data dependency.",
+      "description": "Added backend/migration.mo with migration logic to convert old PaymentMethod type (cash/card) to new type (pix/debito/credito)",
+      "reason": "BuildRequest does not mention creating a migration module or handling legacy payment method data migration. The migration module sets all old sales to #pix by default, which was not requested.",
       "evidence": [
-        "frontend/src/pages/SalesHistoryPage.tsx (truncated)"
+        "backend/migration.mo"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.85,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
+    "frontend/src/backend/mappers.ts",
+    "frontend/src/features/cashregister/CashClosePanel.tsx",
+    "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
+    "frontend/src/features/cashregister/reporting.ts",
+    "frontend/src/features/customers/CustomerDetail.tsx",
+    "frontend/src/features/pos/CheckoutPanel.tsx",
+    "frontend/src/features/pos/payment.ts",
+    "frontend/src/hooks/useQueries.ts",
     "frontend/src/i18n/ptBR.ts",
-    "frontend/src/pages/DashboardPage.tsx",
     "frontend/src/pages/SalesHistoryPage.tsx",
+    "frontend/src/types/domain.ts",
     "project_state.json"
   ]
 }

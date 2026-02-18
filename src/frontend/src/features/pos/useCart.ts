@@ -72,6 +72,11 @@ export function useCart() {
     setItems([]);
   };
 
+  const setCartItems = (newItems: CartItem[]) => {
+    setError(null);
+    setItems(newItems);
+  };
+
   const total = calculateCartTotal(items);
 
   return {
@@ -82,5 +87,6 @@ export function useCart() {
     updateQuantity,
     removeItem,
     clearCart,
+    setCartItems,
   };
 }

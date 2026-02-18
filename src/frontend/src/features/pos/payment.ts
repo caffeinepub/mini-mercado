@@ -1,16 +1,16 @@
 import type { PaymentMethod } from '../../types/domain';
 import { ptBR, getPaymentMethodLabel } from '../../i18n/ptBR';
 
-export const PAYMENT_METHODS: PaymentMethod[] = ['Cash', 'Credit', 'Debit', 'PIX'];
+export const PAYMENT_METHODS: PaymentMethod[] = ['PIX', 'Debit', 'Credit'];
 
-export function validateCashPayment(total: number, amountPaid: number): string | null {
+export function validateCashPayment(amountPaid: number, total: number): string | null {
   if (amountPaid < total) {
     return ptBR.amountPaidInsufficient;
   }
   return null;
 }
 
-export function calculateChange(total: number, amountPaid: number): number {
+export function calculateChange(amountPaid: number, total: number): number {
   return Math.max(0, amountPaid - total);
 }
 

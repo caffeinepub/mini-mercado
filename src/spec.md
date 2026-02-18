@@ -1,14 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Add a Sales History screen to review all recorded sales, including expandable item-by-item details.
+**Goal:** Fix the payment method classification bug where Pix and Debit sales are incorrectly saved as Credit, and improve payment method visibility in reports and checkout.
 
 **Planned changes:**
-- Create a new Sales History page component reachable from the app UI.
-- Fetch and render sales data using the existing React Query hook `useListSales()` (no mocked/local data), including loading and empty states.
-- Display key sale fields per entry (formatted timestamp, customer, total, payment method, and cash change when applicable) and allow expanding each sale to view line items (product name, quantity, unit price/subtotal).
-- Add navigation entry from the Dashboard to Sales History.
-- Update `frontend/src/App.tsx` page-switching logic to include the new Sales History page key and render it correctly.
-- Add minimal new `ptBR` i18n labels for Sales History navigation and headings, reusing existing formatting/helpers where applicable.
+- Fix backend sale creation logic to correctly store payment method values (pix, debito, credito) without forcing all sales to 'credito'
+- Update Sale data type schema to validate and store the three distinct payment methods without default overrides
+- Fix payment method mapping in frontend mappers to ensure correct bidirectional conversion between frontend enum values (PIX, DEBIT, CREDIT) and backend strings (pix, debito, credito)
+- Update sales report query logic to correctly group and aggregate sales by the three distinct payment methods, displaying separate totals for Pix, Debit, and Credit
+- Add payment method confirmation display in the checkout summary showing "Payment: [Selected Method]" before completing the sale
 
-**User-visible outcome:** Users can open a new Sales History screen from the Dashboard to view a list of past sales, expand any sale to see item details, and return to the Dashboard using the existing header navigation.
+**User-visible outcome:** Users will see accurate payment method classification in the cash register closing report with separate totals for Pix, Debit, and Credit. The checkout panel will display a clear confirmation of the selected payment method before completing sales.

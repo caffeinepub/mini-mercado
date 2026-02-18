@@ -96,7 +96,6 @@ export const ptBR = {
   
   // Payment methods (display labels)
   paymentMethodLabels: {
-    'Cash': 'Dinheiro',
     'Credit': 'Crédito',
     'Debit': 'Débito',
     'PIX': 'PIX',
@@ -155,7 +154,6 @@ export const ptBR = {
   salesTotal: 'Total de Vendas',
   grandTotal: 'Total Geral',
   paymentMethodBreakdown: 'Detalhamento por Método de Pagamento',
-  cash: 'Dinheiro',
   credit: 'Crédito',
   debit: 'Débito',
   pix: 'PIX',

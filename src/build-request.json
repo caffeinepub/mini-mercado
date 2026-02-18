@@ -1,86 +1,118 @@
 {
   "kind": "build_request",
-  "title": "Add a Sales History screen",
-  "priority": "normal",
+  "title": "Fix payment method classification bug (Pix and Debit incorrectly saved as Credit)",
+  "projectName": "Multi-Store POS",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a new Sales History screen that lists all recorded sales from the backend and makes them easy to review (date/time, customer, total, payment method, and change for cash payments), with each sale expandable to show item-by-item details (product name, quantity, unit price/subtotal).",
-      "target": "frontend",
+      "text": "Review and fix the submitOrder or concluirVenda function in backend/main.mo to ensure the metodo_pagamento field correctly stores distinct values: 'pix', 'debito', and 'credito' as received from the frontend without any default override.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "recent-messages-4"
+          "msg-20"
         ],
         "quotes": [
-          "Sim, adicione uma tela de históricos de vendas"
+          "Analise a função de submitOrder ou concluirVenda. Certifique-se de que a variável metodo_pagamento envie valores distintos para o banco de dados: pix, debito e credito."
         ]
       },
       "acceptanceCriteria": [
-        "A new page component exists for Sales History and is reachable in the app UI.",
-        "The page fetches sales via the existing React Query hook `useListSales()` and renders results without using local mocked data.",
-        "Each sale row/card shows at least: timestamp (formatted), total amount, payment method label, and cash change when applicable.",
-        "Expanding a sale reveals its line items with quantity and per-item totals/subtotals.",
-        "The UI clearly handles loading and empty states."
+        "The backend sale creation function correctly saves the payment method exactly as sent from the frontend",
+        "No default value forces all sales to be classified as 'credito'",
+        "Sales with payment method 'pix' are stored as 'pix'",
+        "Sales with payment method 'debito' are stored as 'debito'",
+        "Sales with payment method 'credito' are stored as 'credito'"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add navigation to the Sales History screen from the Dashboard and from the app's page-switching logic in `frontend/src/App.tsx` (extend the `Page` union and `renderPage` switch accordingly).",
-      "target": "frontend",
+      "text": "Update the Sale data type schema in backend/main.mo to explicitly validate and store the three distinct payment method values (pix, debito, credito) without any default value that could force all sales to 'credito'.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "recent-messages-4"
+          "msg-20"
         ],
         "quotes": [
-          "Sim, adicione uma tela de históricos de vendas"
+          "No banco de dados, certifique-se de que não haja um valor 'padrão' (default) que force toda venda a ser Crédito. O sistema deve validar e salvar exatamente o que foi selecionado no seletor de pagamento."
         ]
       },
       "acceptanceCriteria": [
-        "Dashboard includes a new card/menu option that navigates to the Sales History screen.",
-        "`frontend/src/App.tsx` supports the new page key and correctly renders the Sales History page when selected.",
-        "Returning to Dashboard via the existing header button works from the Sales History screen."
+        "The Sale type in backend/main.mo has no default payment method value",
+        "The payment method field accepts and stores 'pix', 'debito', and 'credito' distinctly",
+        "Backend validation ensures the payment method value matches one of the three allowed values"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Extend the existing localization file `frontend/src/i18n/ptBR.ts` with the minimal new labels needed for the Sales History navigation and page headings, reusing existing helpers (e.g., payment method label and date formatting) where appropriate.",
+      "text": "Fix the payment method mapping in frontend/src/backend/mappers.ts to ensure correct bidirectional conversion between frontend PaymentMethod enum values (PIX, DEBIT, CREDIT) and backend string values (pix, debito, credito) without any incorrect defaults.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages-4"
+          "msg-20"
         ],
         "quotes": [
-          "Sim, adicione uma tela de históricos de vendas"
+          "Certifique-se de que a variável metodo_pagamento envie valores distintos para o banco de dados: pix, debito e credito."
         ]
       },
       "acceptanceCriteria": [
-        "New UI labels for the Sales History screen and its Dashboard menu entry are defined in `ptBR` and used by the new components (no hard-coded strings in the page where avoidable)."
+        "The mapPaymentMethodToBackend function correctly maps PIX to 'pix', DEBIT to 'debito', and CREDIT to 'credito'",
+        "The mapPaymentMethodFromBackend function correctly maps 'pix' to PIX, 'debito' to DEBIT, and 'credito' to CREDIT",
+        "No mapping produces an incorrect default value"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Update the sales report query logic in frontend/src/features/cashregister/reporting.ts to correctly group and aggregate sales by the three distinct payment methods (pix, debito, credito), displaying separate totals for each method.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "Atualize a query do sistema de relatório para que ela agrupe as vendas corretamente por tipo de pagamento, permitindo ver o total de Pix, Débito e Crédito de forma isolada."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The cash register closing report displays separate totals for Pix, Debit, and Credit sales",
+        "Payment method grouping correctly identifies and sums sales by their stored payment method value",
+        "The report accurately reflects the actual payment methods used in each sale"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Add a payment method confirmation display in the sale summary section of frontend/src/features/pos/CheckoutPanel.tsx that clearly shows 'Payment: [Selected Method]' before the user clicks the 'Complete Sale' button.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "No resumo da venda, antes de clicar em 'Concluir', exiba uma confirmação clara: 'Pagamento: [Método Selecionado]'."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The checkout panel displays the selected payment method in the summary section",
+        "The payment method label reads 'Payment: Pix', 'Payment: Debit', or 'Payment: Credit' based on user selection",
+        "The confirmation is visible before the user completes the sale",
+        "The displayed payment method matches the value that will be saved to the backend"
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single-actor Motoko canister with logic in `backend/main.mo`.",
-    "Do not edit files under `frontend/src/components/ui` (compose existing shadcn components instead).",
-    "Do not modify immutable hook files: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`.",
-    "Use English in this build request only; do not change the app language unless required for the new screen labels."
+    "Do not modify the authentication system or Internet Identity integration",
+    "Maintain the existing single-actor backend architecture in backend/main.mo",
+    "Do not change immutable frontend paths: useInternetIdentity.ts, useInternetIdentity.tsx, useActor.ts, main.tsx, components/ui",
+    "Use only the supported tech stack: Motoko backend, React + TypeScript + Tailwind frontend"
   ],
   "nonGoals": [
-    "Do not add new backend endpoints or change the sales schema for this request.",
-    "Do not implement real-time updates or websocket-based live sales feeds.",
-    "Do not add export/printing features (CSV/PDF/receipt printing) as part of this request."
+    "Implementing multi-tenant isolation (separate issue to be addressed)",
+    "Adding new payment methods beyond Pix, Debit, and Credit",
+    "Changing the overall POS workflow or checkout process",
+    "Modifying the cash register session management logic",
+    "Altering the customer management or raffle eligibility features"
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

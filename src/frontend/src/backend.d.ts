@@ -7,18 +7,6 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface CloseRegisterRequest {
-    sessionId: bigint;
-    finalBalanceCents: bigint;
-}
-export interface CashRegisterSession {
-    id: bigint;
-    closeTime?: Time;
-    isOpen: boolean;
-    finalBalanceCents?: bigint;
-    initialFloatCents: bigint;
-    openTime: Time;
-}
 export type Time = bigint;
 export interface UpdateCustomerRequest {
     id: string;
@@ -33,13 +21,19 @@ export interface CreateCustomerRequest {
     name: string;
     phone: string;
 }
+export interface ClosingRecord {
+    id: bigint;
+    closeTime: Time;
+    sessionId: bigint;
+    finalBalanceCents: bigint;
+}
 export interface Sale {
     id: bigint;
     paymentMethod: PaymentMethod;
     date: Time;
     totalCents: bigint;
     changeCents: bigint;
-    customerId: string;
+    customerId?: string;
     items: Array<SaleItem>;
 }
 export interface Customer {
@@ -49,6 +43,18 @@ export interface Customer {
     totalPurchasesCents: bigint;
     phone: string;
 }
+export interface CashRegisterSession {
+    id: bigint;
+    closeTime?: Time;
+    isOpen: boolean;
+    finalBalanceCents?: bigint;
+    initialFloatCents: bigint;
+    openTime: Time;
+}
+export interface CloseRegisterRequest {
+    sessionId: bigint;
+    finalBalanceCents: bigint;
+}
 export interface SaleItem {
     itemId: string;
     name: string;
@@ -56,15 +62,13 @@ export interface SaleItem {
     quantity: bigint;
     priceCents: bigint;
 }
-export interface ClosingRecord {
-    id: bigint;
-    closeTime: Time;
-    sessionId: bigint;
-    finalBalanceCents: bigint;
+export interface UserProfile {
+    name: string;
 }
 export enum PaymentMethod {
-    card = "card",
-    cash = "cash"
+    pix = "pix",
+    credito = "credito",
+    debito = "debito"
 }
 export enum UserRole {
     admin = "admin",
@@ -75,10 +79,13 @@ export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     closeRegister(request: CloseRegisterRequest): Promise<void>;
     createCustomer(request: CreateCustomerRequest): Promise<Customer>;
+    deleteSale(id: bigint): Promise<void>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCustomer(id: string): Promise<Customer>;
     getOpenRegisterSession(): Promise<CashRegisterSession | null>;
     getSale(id: bigint): Promise<Sale | null>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     listClosingRecords(): Promise<Array<ClosingRecord>>;
     listCustomers(): Promise<Array<Customer>>;
@@ -86,6 +93,7 @@ export interface backendInterface {
     listSales(): Promise<Array<Sale>>;
     listSalesByCustomer(customerId: string): Promise<Array<Sale>>;
     openRegister(request: OpenRegisterRequest): Promise<CashRegisterSession>;
-    recordSale(customerId: string, items: Array<SaleItem>, paymentMethod: PaymentMethod, amountPaidCents: bigint): Promise<Sale>;
+    recordSale(customerId: string | null, items: Array<SaleItem>, paymentMethod: PaymentMethod, amountPaidCents: bigint): Promise<Sale>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateCustomer(request: UpdateCustomerRequest): Promise<void>;
 }

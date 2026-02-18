@@ -64,20 +64,16 @@ export function CashClosePanel({ session, sales, onClose, isClosing }: CashClose
             <h4 className="font-semibold mb-3">{ptBR.paymentMethodBreakdown}</h4>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{ptBR.cash}:</span>
-                <span className="font-medium">{formatCurrency(breakdown.cash)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{ptBR.credit}:</span>
-                <span className="font-medium">{formatCurrency(breakdown.credit)}</span>
+                <span className="text-muted-foreground">{ptBR.pix}:</span>
+                <span className="font-medium">{formatCurrency(breakdown.pix)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{ptBR.debit}:</span>
                 <span className="font-medium">{formatCurrency(breakdown.debit)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{ptBR.pix}:</span>
-                <span className="font-medium">{formatCurrency(breakdown.pix)}</span>
+                <span className="text-muted-foreground">{ptBR.credit}:</span>
+                <span className="font-medium">{formatCurrency(breakdown.credit)}</span>
               </div>
             </div>
           </div>

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -13,7 +12,6 @@ import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
 import type { PaymentMethod } from '../../types/domain';
 import { formatCurrency } from '../../utils/money';
-import { validateCashPayment, calculateChange } from './payment';
 import { ptBR, getPaymentMethodLabel } from '../../i18n/ptBR';
 
 interface CheckoutPanelProps {
@@ -25,10 +23,7 @@ interface CheckoutPanelProps {
 
 export function CheckoutPanel({ total, onComplete, disabled, isProcessing }: CheckoutPanelProps) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>('');
-  const [amountPaid, setAmountPaid] = useState('');
   const [error, setError] = useState<string | null>(null);
-
-  const change = paymentMethod === 'Cash' ? calculateChange(parseFloat(amountPaid) || 0, total) : 0;
 
   const handleComplete = () => {
     setError(null);
@@ -38,82 +33,59 @@ export function CheckoutPanel({ total, onComplete, disabled, isProcessing }: Che
       return;
     }
 
-    if (paymentMethod === 'Cash') {
-      const paid = parseFloat(amountPaid);
-      const validationError = validateCashPayment(paid, total);
-      if (validationError) {
-        setError(validationError);
-        return;
-      }
-      onComplete(paymentMethod, paid, change);
-    } else {
-      onComplete(paymentMethod, total, 0);
-    }
+    // For all payment methods (PIX, Debit, Credit), amount paid equals total with no change
+    onComplete(paymentMethod, total, 0);
   };
+
+  const isCompleteDisabled = disabled || isProcessing || !paymentMethod;
 
   return (
     <div className="space-y-4">
       <div className="grid gap-2">
         <Label htmlFor="payment-method">{ptBR.paymentMethodRequired}</Label>
-        <Select value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as PaymentMethod)} disabled={disabled || isProcessing}>
+        <Select value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as PaymentMethod)} disabled={isProcessing}>
           <SelectTrigger id="payment-method">
             <SelectValue placeholder={ptBR.selectPaymentMethod} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Cash">{getPaymentMethodLabel('Cash')}</SelectItem>
-            <SelectItem value="Credit">{getPaymentMethodLabel('Credit')}</SelectItem>
-            <SelectItem value="Debit">{getPaymentMethodLabel('Debit')}</SelectItem>
             <SelectItem value="PIX">{getPaymentMethodLabel('PIX')}</SelectItem>
+            <SelectItem value="Debit">{getPaymentMethodLabel('Debit')}</SelectItem>
+            <SelectItem value="Credit">{getPaymentMethodLabel('Credit')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {paymentMethod === 'Cash' && (
-        <>
-          <div className="grid gap-2">
-            <Label htmlFor="amount-paid">{ptBR.amountPaid}</Label>
-            <Input
-              id="amount-paid"
-              type="number"
-              step="0.01"
-              min="0"
-              value={amountPaid}
-              onChange={(e) => setAmountPaid(e.target.value)}
-              placeholder="0.00"
-              disabled={disabled || isProcessing}
-            />
-          </div>
-
-          {amountPaid && (
-            <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-              <span className="font-medium">{ptBR.change}:</span>
-              <span className="text-lg font-bold">{formatCurrency(change)}</span>
-            </div>
-          )}
-        </>
-      )}
-
       {error && (
-        <p className="text-sm text-destructive">{error}</p>
+        <div className="text-sm text-destructive">{error}</div>
       )}
 
       <Separator />
 
-      <div className="flex justify-between items-center text-lg font-bold">
+      {/* Payment Method Confirmation */}
+      {paymentMethod && (
+        <div className="bg-muted/50 p-3 rounded-md">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">{ptBR.paymentMethod}:</span>
+            <span className="font-semibold">{getPaymentMethodLabel(paymentMethod)}</span>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between text-lg font-bold">
         <span>{ptBR.total}:</span>
         <span>{formatCurrency(total)}</span>
       </div>
 
-      <Button 
-        onClick={handleComplete} 
-        size="lg" 
+      <Button
+        onClick={handleComplete}
+        disabled={isCompleteDisabled}
         className="w-full"
-        disabled={disabled || isProcessing || !paymentMethod}
+        size="lg"
       >
         {isProcessing ? (
           <>
             <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-            Processando...
+            Processing...
           </>
         ) : (
           ptBR.completeSale

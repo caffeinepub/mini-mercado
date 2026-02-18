@@ -84,9 +84,6 @@ export function CustomerDetail({ customer, onBack }: CustomerDetailProps) {
                       </p>
                       <p className="text-sm text-muted-foreground mt-1">
                         {sale.items.length} {ptBR.items(sale.items.length)} • {getPaymentMethodLabel(sale.paymentMethod)}
-                        {sale.paymentMethod === 'Cash' && sale.change > 0 && (
-                          <> • Troco: {formatCurrency(sale.change)}</>
-                        )}
                       </p>
                       <div className="text-xs text-muted-foreground mt-2">
                         {sale.items.map((item, idx) => (

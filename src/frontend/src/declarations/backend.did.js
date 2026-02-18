@@ -8,6 +8,17 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const _CaffeineStorageCreateCertificateResult = IDL.Record({
+  'method' : IDL.Text,
+  'blob_hash' : IDL.Text,
+});
+export const _CaffeineStorageRefillInformation = IDL.Record({
+  'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+});
+export const _CaffeineStorageRefillResult = IDL.Record({
+  'success' : IDL.Opt(IDL.Bool),
+  'topped_up_amount' : IDL.Opt(IDL.Nat),
+});
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
@@ -29,6 +40,7 @@ export const Customer = IDL.Record({
   'totalPurchasesCents' : IDL.Int,
   'phone' : IDL.Text,
 });
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const Time = IDL.Int;
 export const CashRegisterSession = IDL.Record({
   'id' : IDL.Nat,
@@ -39,8 +51,9 @@ export const CashRegisterSession = IDL.Record({
   'openTime' : Time,
 });
 export const PaymentMethod = IDL.Variant({
-  'card' : IDL.Null,
-  'cash' : IDL.Null,
+  'pix' : IDL.Null,
+  'credito' : IDL.Null,
+  'debito' : IDL.Null,
 });
 export const SaleItem = IDL.Record({
   'itemId' : IDL.Text,
@@ -55,7 +68,7 @@ export const Sale = IDL.Record({
   'date' : Time,
   'totalCents' : IDL.Int,
   'changeCents' : IDL.Int,
-  'customerId' : IDL.Text,
+  'customerId' : IDL.Opt(IDL.Text),
   'items' : IDL.Vec(SaleItem),
 });
 export const ClosingRecord = IDL.Record({
@@ -74,10 +87,38 @@ export const UpdateCustomerRequest = IDL.Record({
 });
 
 export const idlService = IDL.Service({
+  '_caffeineStorageBlobIsLive' : IDL.Func(
+      [IDL.Vec(IDL.Nat8)],
+      [IDL.Bool],
+      ['query'],
+    ),
+  '_caffeineStorageBlobsToDelete' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      ['query'],
+    ),
+  '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      [],
+      [],
+    ),
+  '_caffeineStorageCreateCertificate' : IDL.Func(
+      [IDL.Text],
+      [_CaffeineStorageCreateCertificateResult],
+      [],
+    ),
+  '_caffeineStorageRefillCashier' : IDL.Func(
+      [IDL.Opt(_CaffeineStorageRefillInformation)],
+      [_CaffeineStorageRefillResult],
+      [],
+    ),
+  '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'closeRegister' : IDL.Func([CloseRegisterRequest], [], []),
   'createCustomer' : IDL.Func([CreateCustomerRequest], [Customer], []),
+  'deleteSale' : IDL.Func([IDL.Nat], [], []),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getCustomer' : IDL.Func([IDL.Text], [Customer], ['query']),
   'getOpenRegisterSession' : IDL.Func(
@@ -86,6 +127,11 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getSale' : IDL.Func([IDL.Nat], [IDL.Opt(Sale)], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'listClosingRecords' : IDL.Func([], [IDL.Vec(ClosingRecord)], ['query']),
   'listCustomers' : IDL.Func([], [IDL.Vec(Customer)], ['query']),
@@ -98,16 +144,28 @@ export const idlService = IDL.Service({
   'listSalesByCustomer' : IDL.Func([IDL.Text], [IDL.Vec(Sale)], ['query']),
   'openRegister' : IDL.Func([OpenRegisterRequest], [CashRegisterSession], []),
   'recordSale' : IDL.Func(
-      [IDL.Text, IDL.Vec(SaleItem), PaymentMethod, IDL.Int],
+      [IDL.Opt(IDL.Text), IDL.Vec(SaleItem), PaymentMethod, IDL.Int],
       [Sale],
       [],
     ),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'updateCustomer' : IDL.Func([UpdateCustomerRequest], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const _CaffeineStorageCreateCertificateResult = IDL.Record({
+    'method' : IDL.Text,
+    'blob_hash' : IDL.Text,
+  });
+  const _CaffeineStorageRefillInformation = IDL.Record({
+    'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+  });
+  const _CaffeineStorageRefillResult = IDL.Record({
+    'success' : IDL.Opt(IDL.Bool),
+    'topped_up_amount' : IDL.Opt(IDL.Nat),
+  });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
@@ -129,6 +187,7 @@ export const idlFactory = ({ IDL }) => {
     'totalPurchasesCents' : IDL.Int,
     'phone' : IDL.Text,
   });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
   const Time = IDL.Int;
   const CashRegisterSession = IDL.Record({
     'id' : IDL.Nat,
@@ -138,7 +197,11 @@ export const idlFactory = ({ IDL }) => {
     'initialFloatCents' : IDL.Int,
     'openTime' : Time,
   });
-  const PaymentMethod = IDL.Variant({ 'card' : IDL.Null, 'cash' : IDL.Null });
+  const PaymentMethod = IDL.Variant({
+    'pix' : IDL.Null,
+    'credito' : IDL.Null,
+    'debito' : IDL.Null,
+  });
   const SaleItem = IDL.Record({
     'itemId' : IDL.Text,
     'name' : IDL.Text,
@@ -152,7 +215,7 @@ export const idlFactory = ({ IDL }) => {
     'date' : Time,
     'totalCents' : IDL.Int,
     'changeCents' : IDL.Int,
-    'customerId' : IDL.Text,
+    'customerId' : IDL.Opt(IDL.Text),
     'items' : IDL.Vec(SaleItem),
   });
   const ClosingRecord = IDL.Record({
@@ -169,10 +232,38 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
+    '_caffeineStorageBlobIsLive' : IDL.Func(
+        [IDL.Vec(IDL.Nat8)],
+        [IDL.Bool],
+        ['query'],
+      ),
+    '_caffeineStorageBlobsToDelete' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        ['query'],
+      ),
+    '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        [],
+        [],
+      ),
+    '_caffeineStorageCreateCertificate' : IDL.Func(
+        [IDL.Text],
+        [_CaffeineStorageCreateCertificateResult],
+        [],
+      ),
+    '_caffeineStorageRefillCashier' : IDL.Func(
+        [IDL.Opt(_CaffeineStorageRefillInformation)],
+        [_CaffeineStorageRefillResult],
+        [],
+      ),
+    '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'closeRegister' : IDL.Func([CloseRegisterRequest], [], []),
     'createCustomer' : IDL.Func([CreateCustomerRequest], [Customer], []),
+    'deleteSale' : IDL.Func([IDL.Nat], [], []),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getCustomer' : IDL.Func([IDL.Text], [Customer], ['query']),
     'getOpenRegisterSession' : IDL.Func(
@@ -181,6 +272,11 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getSale' : IDL.Func([IDL.Nat], [IDL.Opt(Sale)], ['query']),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'listClosingRecords' : IDL.Func([], [IDL.Vec(ClosingRecord)], ['query']),
     'listCustomers' : IDL.Func([], [IDL.Vec(Customer)], ['query']),
@@ -193,10 +289,11 @@ export const idlFactory = ({ IDL }) => {
     'listSalesByCustomer' : IDL.Func([IDL.Text], [IDL.Vec(Sale)], ['query']),
     'openRegister' : IDL.Func([OpenRegisterRequest], [CashRegisterSession], []),
     'recordSale' : IDL.Func(
-        [IDL.Text, IDL.Vec(SaleItem), PaymentMethod, IDL.Int],
+        [IDL.Opt(IDL.Text), IDL.Vec(SaleItem), PaymentMethod, IDL.Int],
         [Sale],
         [],
       ),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'updateCustomer' : IDL.Func([UpdateCustomerRequest], [], []),
   });
 };

@@ -1,61 +1,89 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T02:13:58.029Z",
+  "generatedAt": "2026-02-18T22:07:30.718Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
+    "total": 5,
     "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a new Sales History screen that lists all recorded sales from the backend and makes them easy to review (date/time, customer, total, payment method, and change for cash payments), with each sale expandable to show item-by-item details (product name, quantity, unit price/subtotal).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/SalesHistoryPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/SalesHistoryPage.tsx"
-        ]
+        "summary": "Review and fix the submitOrder or concluirVenda function in backend/main.mo to ensure the metodo_pagamento field correctly stores distinct values: 'pix', 'debito', and 'credito' as received from the frontend without any default override.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Add navigation to the Sales History screen from the Dashboard and from the app's page-switching logic in `frontend/src/App.tsx` (extend the `Page` union and `renderPage` switch accordingly).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/pages/DashboardPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/pages/DashboardPage.tsx"
-        ]
+        "summary": "Update the Sale data type schema in backend/main.mo to explicitly validate and store the three distinct payment method values (pix, debito, credito) without any default value that could force all sales to 'credito'.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-3",
-        "summary": "Extend the existing localization file `frontend/src/i18n/ptBR.ts` with the minimal new labels needed for the Sales History navigation and page headings, reusing existing helpers (e.g., payment method label and date formatting) where appropriate.",
+        "summary": "Fix the payment method mapping in frontend/src/backend/mappers.ts to ensure correct bidirectional conversion between frontend PaymentMethod enum values (PIX, DEBIT, CREDIT) and backend string values (pix, debito, credito) without any incorrect defaults.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/i18n/ptBR.ts"
+          "frontend/src/backend/mappers.ts"
         ],
         "matchedFiles": [
-          "frontend/src/i18n/ptBR.ts"
+          "frontend/src/backend/mappers.ts"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Update the sales report query logic in frontend/src/features/cashregister/reporting.ts to correctly group and aggregate sales by the three distinct payment methods (pix, debito, credito), displaying separate totals for each method.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cashregister/reporting.ts",
+          "frontend/src/features/cashregister/CashClosePanel.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cashregister/reporting.ts",
+          "frontend/src/features/cashregister/CashClosePanel.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Add a payment method confirmation display in the sale summary section of frontend/src/features/pos/CheckoutPanel.tsx that clearly shows 'Payment: [Selected Method]' before the user clicks the 'Complete Sale' button.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/pos/CheckoutPanel.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/pos/CheckoutPanel.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/backend/mappers.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/features/cashregister/CashClosePanel.tsx",
+    "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
+    "frontend/src/features/cashregister/reporting.ts",
+    "frontend/src/features/customers/CustomerDetail.tsx",
+    "frontend/src/features/pos/CheckoutPanel.tsx",
+    "frontend/src/features/pos/payment.ts",
+    "frontend/src/hooks/useQueries.ts",
     "frontend/src/i18n/ptBR.ts",
-    "frontend/src/pages/DashboardPage.tsx",
     "frontend/src/pages/SalesHistoryPage.tsx",
+    "frontend/src/types/domain.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

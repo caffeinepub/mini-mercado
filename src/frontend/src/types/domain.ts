@@ -21,7 +21,7 @@ export interface Customer {
   eligibleForRaffle?: boolean;
 }
 
-export type PaymentMethod = 'Cash' | 'Credit' | 'Debit' | 'PIX';
+export type PaymentMethod = 'PIX' | 'Credit' | 'Debit';
 
 export interface SaleItem {
   productId: string;
@@ -38,7 +38,7 @@ export interface Sale {
   amountPaid: number;
   change: number;
   paymentMethod: PaymentMethod;
-  customerId?: string;
+  customerId?: string | null;
   customerName?: string;
   timestamp: number;
   cashSessionId?: string;
@@ -57,7 +57,6 @@ export interface CashCloseRecord {
   initialFloat: number;
   salesTotal: number;
   grandTotal: number;
-  cashTotal: number;
   creditTotal: number;
   debitTotal: number;
   pixTotal: number;

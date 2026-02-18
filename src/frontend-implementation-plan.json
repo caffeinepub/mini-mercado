@@ -1,58 +1,59 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Sales History screen (frontend)",
+  "title": "Fix payment method classification bug (frontend changes)",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Create a Sales History page that fetches and displays all backend sales with expandable line-item details and clear loading/empty states.",
+      "id": "REQ-3",
+      "summary": "Fix payment method mapping to ensure correct bidirectional conversion between frontend PaymentMethod enum values and backend string values without incorrect defaults",
       "acceptanceCriteria": [
-        "A new page component exists for Sales History and is reachable in the app UI.",
-        "The page fetches sales via the existing React Query hook `useListSales()` and renders results without using local mocked data.",
-        "Each sale row/card shows at least: timestamp (formatted), total amount, payment method label, and cash change when applicable.",
-        "Expanding a sale reveals its line items with quantity and per-item totals/subtotals.",
-        "The UI clearly handles loading and empty states."
+        "The mapPaymentMethodToBackend function correctly maps PIX to 'pix', DEBIT to 'debito', and CREDIT to 'credito'",
+        "The mapPaymentMethodFromBackend function correctly maps 'pix' to PIX, 'debito' to DEBIT, and 'credito' to CREDIT",
+        "No mapping produces an incorrect default value"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/SalesHistoryPage.tsx",
-          "operation": "create",
-          "description": "Implement Sales History page UI: fetch sales via `useListSales()` (no mocked data), format timestamps with `formatDateTimePtBR`, format amounts with `formatCurrency`, and label payment method with `getPaymentMethodLabel`. Also fetch customers via `useListCustomers()` to display customer name from `customerId`. Render each sale in a shadcn Card with an expandable section (e.g., details/summary or composed shadcn Collapsible/Accordion) showing item name, quantity, unit price, and line subtotal. Include explicit loading and empty states. Use existing shadcn-ui components (e.g., Card, Button, Separator, Badge) to compose the layout; verify the component's usage instructions before implementing."
+          "path": "frontend/src/backend/mappers.ts",
+          "operation": "modify",
+          "description": "Review and fix the mapPaymentMethodToBackend and mapPaymentMethodFromBackend functions to ensure accurate bidirectional mapping between frontend PaymentMethod enum (PIX, DEBIT, CREDIT) and backend string values ('pix', 'debito', 'credito'). Verify that no switch case or conditional uses an incorrect default that forces all values to 'credito'. Ensure the mapping is exhaustive and explicit for all three payment methods."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Wire Sales History into app navigation from Dashboard and App page-switching logic.",
+      "id": "REQ-4",
+      "summary": "Update sales report query logic to correctly group and aggregate sales by three distinct payment methods displaying separate totals",
       "acceptanceCriteria": [
-        "Dashboard includes a new card/menu option that navigates to the Sales History screen.",
-        "`frontend/src/App.tsx` supports the new page key and correctly renders the Sales History page when selected.",
-        "Returning to Dashboard via the existing header button works from the Sales History screen."
+        "The cash register closing report displays separate totals for Pix, Debit, and Credit sales",
+        "Payment method grouping correctly identifies and sums sales by their stored payment method value",
+        "The report accurately reflects the actual payment methods used in each sale"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/features/cashregister/reporting.ts",
           "operation": "modify",
-          "description": "Extend the `Page` union to include a Sales History page key (e.g., 'sales-history') and update `renderPage` switch to render the new `SalesHistoryPage` when selected. Ensure existing header Dashboard button continues to return to 'dashboard' from this screen."
+          "description": "Review and fix the sales aggregation logic in reporting.ts to ensure payment method grouping correctly identifies and separates sales by 'pix', 'debito', and 'credito'. Verify that the grouping logic does not treat different payment methods as a single category and that totals are calculated independently for each method. Ensure the report accurately reflects the payment methods stored in each sale without any default consolidation."
         },
         {
-          "path": "frontend/src/pages/DashboardPage.tsx",
+          "path": "frontend/src/features/cashregister/CashClosePanel.tsx",
           "operation": "modify",
-          "description": "Add a new Dashboard navigation card/menu item that calls `onNavigate` with the Sales History page key and uses new localized title/description labels. Compose the UI using existing shadcn-ui Card patterns already used in this file; verify the component's usage instructions before implementing."
+          "description": "Update the cash register closing panel UI to display separate totals for Pix, Debit, and Credit sales. Ensure the component uses the corrected reporting logic from reporting.ts and renders distinct line items or sections for each payment method with accurate totals. Verify that the displayed payment method labels match the backend values and user selections."
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Add minimal pt-BR localization labels required for Sales History navigation and headings, reusing existing helpers.",
+      "id": "REQ-5",
+      "summary": "Add payment method confirmation display in the sale summary section showing the selected payment method before completing the sale",
       "acceptanceCriteria": [
-        "New UI labels for the Sales History screen and its Dashboard menu entry are defined in `ptBR` and used by the new components (no hard-coded strings in the page where avoidable)."
+        "The checkout panel displays the selected payment method in the summary section",
+        "The payment method label reads 'Payment: Pix', 'Payment: Debit', or 'Payment: Credit' based on user selection",
+        "The confirmation is visible before the user completes the sale",
+        "The displayed payment method matches the value that will be saved to the backend"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/i18n/ptBR.ts",
+          "path": "frontend/src/features/pos/CheckoutPanel.tsx",
           "operation": "modify",
-          "description": "Add minimal new pt-BR labels for the Sales History feature (Dashboard card title/description and page heading/empty message as needed). Ensure the Sales History page uses these labels and continues to reuse existing helpers like `getPaymentMethodLabel` and `formatDateTimePtBR` where applicable."
+          "description": "Add a payment method confirmation display in the sale summary section of CheckoutPanel.tsx that clearly shows 'Payment: [Selected Method]' before the user clicks the 'Complete Sale' button. Use the selected payment method from the component state and format it for display using localization helpers from i18n/ptBR.ts if available. Ensure the displayed value matches exactly what will be sent to the backend (PIX, DEBIT, or CREDIT from the frontend enum, which will be mapped to 'pix', 'debito', or 'credito'). Position the confirmation prominently in the summary area so users can verify their selection before finalizing the transaction."
         }
       ]
     }

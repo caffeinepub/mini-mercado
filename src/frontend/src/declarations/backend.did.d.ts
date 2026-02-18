@@ -41,15 +41,16 @@ export interface Customer {
   'phone' : string,
 }
 export interface OpenRegisterRequest { 'initialFloatCents' : bigint }
-export type PaymentMethod = { 'card' : null } |
-  { 'cash' : null };
+export type PaymentMethod = { 'pix' : null } |
+  { 'credito' : null } |
+  { 'debito' : null };
 export interface Sale {
   'id' : bigint,
   'paymentMethod' : PaymentMethod,
   'date' : Time,
   'totalCents' : bigint,
   'changeCents' : bigint,
-  'customerId' : string,
+  'customerId' : [] | [string],
   'items' : Array<SaleItem>,
 }
 export interface SaleItem {
@@ -65,18 +66,48 @@ export interface UpdateCustomerRequest {
   'name' : string,
   'phone' : string,
 }
+export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface _CaffeineStorageCreateCertificateResult {
+  'method' : string,
+  'blob_hash' : string,
+}
+export interface _CaffeineStorageRefillInformation {
+  'proposed_top_up_amount' : [] | [bigint],
+}
+export interface _CaffeineStorageRefillResult {
+  'success' : [] | [boolean],
+  'topped_up_amount' : [] | [bigint],
+}
 export interface _SERVICE {
+  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
+  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
+  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
+    [Array<Uint8Array>],
+    undefined
+  >,
+  '_caffeineStorageCreateCertificate' : ActorMethod<
+    [string],
+    _CaffeineStorageCreateCertificateResult
+  >,
+  '_caffeineStorageRefillCashier' : ActorMethod<
+    [[] | [_CaffeineStorageRefillInformation]],
+    _CaffeineStorageRefillResult
+  >,
+  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'closeRegister' : ActorMethod<[CloseRegisterRequest], undefined>,
   'createCustomer' : ActorMethod<[CreateCustomerRequest], Customer>,
+  'deleteSale' : ActorMethod<[bigint], undefined>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCustomer' : ActorMethod<[string], Customer>,
   'getOpenRegisterSession' : ActorMethod<[], [] | [CashRegisterSession]>,
   'getSale' : ActorMethod<[bigint], [] | [Sale]>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'listClosingRecords' : ActorMethod<[], Array<ClosingRecord>>,
   'listCustomers' : ActorMethod<[], Array<Customer>>,
@@ -85,9 +116,10 @@ export interface _SERVICE {
   'listSalesByCustomer' : ActorMethod<[string], Array<Sale>>,
   'openRegister' : ActorMethod<[OpenRegisterRequest], CashRegisterSession>,
   'recordSale' : ActorMethod<
-    [string, Array<SaleItem>, PaymentMethod, bigint],
+    [[] | [string], Array<SaleItem>, PaymentMethod, bigint],
     Sale
   >,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'updateCustomer' : ActorMethod<[UpdateCustomerRequest], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +12,65 @@ interface ProductTableProps {
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
 }
+
+// Memoized row component to prevent unnecessary re-renders
+const ProductRow = memo(({ product, onEdit, onDelete }: {
+  product: Product;
+  onEdit: (product: Product) => void;
+  onDelete: (product: Product) => void;
+}) => (
+  <TableRow>
+    <TableCell>
+      {product.image ? (
+        <img
+          src={product.image}
+          alt={product.name}
+          className="h-12 w-12 object-cover rounded"
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <div className="h-12 w-12 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">
+          {ptBR.noImage}
+        </div>
+      )}
+    </TableCell>
+    <TableCell className="font-medium">{product.name}</TableCell>
+    <TableCell>{getCategoryLabel(product.category)}</TableCell>
+    <TableCell className="text-right">{formatCurrency(product.price)}</TableCell>
+    <TableCell className="text-right">
+      <div className="flex items-center justify-end gap-2">
+        {product.stock < 5 && (
+          <Badge variant="destructive" className="gap-1">
+            <AlertTriangle className="h-3 w-3" />
+            {ptBR.low}
+          </Badge>
+        )}
+        <span>{product.stock}</span>
+      </div>
+    </TableCell>
+    <TableCell className="text-right">
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onEdit(product)}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onDelete(product)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </TableCell>
+  </TableRow>
+));
+
+ProductRow.displayName = 'ProductRow';
 
 export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) {
   if (products.length === 0) {
@@ -36,53 +96,12 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
         </TableHeader>
         <TableBody>
           {products.map((product) => (
-            <TableRow key={product.id}>
-              <TableCell>
-                {product.image ? (
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="h-12 w-12 object-cover rounded"
-                  />
-                ) : (
-                  <div className="h-12 w-12 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">
-                    {ptBR.noImage}
-                  </div>
-                )}
-              </TableCell>
-              <TableCell className="font-medium">{product.name}</TableCell>
-              <TableCell>{getCategoryLabel(product.category)}</TableCell>
-              <TableCell className="text-right">{formatCurrency(product.price)}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-2">
-                  {product.stock < 5 && (
-                    <Badge variant="destructive" className="gap-1">
-                      <AlertTriangle className="h-3 w-3" />
-                      {ptBR.low}
-                    </Badge>
-                  )}
-                  <span>{product.stock}</span>
-                </div>
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(product)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onDelete(product)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
+            <ProductRow
+              key={product.id}
+              product={product}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
           ))}
         </TableBody>
       </Table>

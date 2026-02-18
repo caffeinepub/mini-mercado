@@ -49,11 +49,10 @@ export function ClosingsHistoryList({ closings }: ClosingsHistoryListProps) {
                     <p className="font-bold text-lg">{formatCurrency(closing.grandTotal)}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                  <div>{ptBR.cash}: {formatCurrency(closing.cashTotal)}</div>
-                  <div>{ptBR.credit}: {formatCurrency(closing.creditTotal)}</div>
-                  <div>{ptBR.debit}: {formatCurrency(closing.debitTotal)}</div>
+                <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
                   <div>{ptBR.pix}: {formatCurrency(closing.pixTotal)}</div>
+                  <div>{ptBR.debit}: {formatCurrency(closing.debitTotal)}</div>
+                  <div>{ptBR.credit}: {formatCurrency(closing.creditTotal)}</div>
                 </div>
               </div>
               <Separator className="mt-4" />

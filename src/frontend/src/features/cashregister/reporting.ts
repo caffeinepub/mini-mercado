@@ -1,7 +1,6 @@
 import type { Sale, PaymentMethod } from '../../types/domain';
 
 export interface PaymentBreakdown {
-  cash: number;
   credit: number;
   debit: number;
   pix: number;
@@ -10,7 +9,6 @@ export interface PaymentBreakdown {
 
 export function calculatePaymentBreakdown(sales: Sale[]): PaymentBreakdown {
   const breakdown: PaymentBreakdown = {
-    cash: 0,
     credit: 0,
     debit: 0,
     pix: 0,
@@ -21,9 +19,6 @@ export function calculatePaymentBreakdown(sales: Sale[]): PaymentBreakdown {
     breakdown.total += sale.total;
     
     switch (sale.paymentMethod) {
-      case 'Cash':
-        breakdown.cash += sale.total;
-        break;
       case 'Credit':
         breakdown.credit += sale.total;
         break;

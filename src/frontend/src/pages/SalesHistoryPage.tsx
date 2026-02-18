@@ -2,9 +2,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronUp, Receipt } from 'lucide-react';
-import { useState } from 'react';
-import { useListSales } from '../hooks/useQueries';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { ChevronDown, ChevronUp, Receipt, Trash2, Loader2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { useListSales, useDeleteSale, useIsCallerAdmin } from '../hooks/useQueries';
 import { useListCustomers } from '../hooks/useQueries';
 import { ptBR, formatDateTimePtBR, getPaymentMethodLabel } from '../i18n/ptBR';
 import { formatCurrency } from '../utils/money';
@@ -12,9 +24,11 @@ import { formatCurrency } from '../utils/money';
 export function SalesHistoryPage() {
   const { data: sales = [], isLoading: salesLoading } = useListSales();
   const { data: customers = [], isLoading: customersLoading } = useListCustomers();
+  const { data: isAdmin = false, isLoading: adminLoading } = useIsCallerAdmin();
+  const deleteSale = useDeleteSale();
   const [expandedSales, setExpandedSales] = useState<Set<string>>(new Set());
 
-  const isLoading = salesLoading || customersLoading;
+  const isLoading = salesLoading || customersLoading || adminLoading;
 
   const toggleSale = (saleId: string) => {
     setExpandedSales((prev) => {
@@ -28,13 +42,31 @@ export function SalesHistoryPage() {
     });
   };
 
-  const getCustomerName = (customerId: string): string => {
-    const customer = customers.find((c) => c.id === customerId);
-    return customer?.name || customerId;
+  const handleDeleteSale = async (saleId: string) => {
+    try {
+      await deleteSale.mutateAsync(saleId);
+    } catch (error: any) {
+      console.error('Error deleting sale:', error);
+      alert(error.message || 'Failed to delete sale');
+    }
   };
 
-  // Sort sales by timestamp descending (most recent first)
-  const sortedSales = [...sales].sort((a, b) => b.timestamp - a.timestamp);
+  // Memoize customer lookup map to avoid repeated linear scans
+  const customerMap = useMemo(() => {
+    const map = new Map<string, string>();
+    customers.forEach((c) => map.set(c.id, c.name));
+    return map;
+  }, [customers]);
+
+  const getCustomerName = (customerId: string | null | undefined): string => {
+    if (!customerId) return 'Final Consumer';
+    return customerMap.get(customerId) || customerId;
+  };
+
+  // Memoize sorted sales to avoid re-sorting on every render
+  const sortedSales = useMemo(() => {
+    return [...sales].sort((a, b) => b.timestamp - a.timestamp);
+  }, [sales]);
 
   return (
     <div className="space-y-6">
@@ -63,74 +95,92 @@ export function SalesHistoryPage() {
         <div className="space-y-4">
           {sortedSales.map((sale) => {
             const isExpanded = expandedSales.has(sale.id);
+            const customerName = getCustomerName(sale.customerId);
+
             return (
               <Card key={sale.id}>
                 <Collapsible open={isExpanded} onOpenChange={() => toggleSale(sale.id)}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
-                      <div className="space-y-1 flex-1">
+                      <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <CardTitle className="text-xl">
+                          <CardTitle className="text-lg">
                             {ptBR.sale} #{sale.id}
                           </CardTitle>
                           <Badge variant="outline">
                             {getPaymentMethodLabel(sale.paymentMethod)}
                           </Badge>
                         </div>
-                        <CardDescription>
-                          {formatDateTimePtBR(sale.timestamp)} • {getCustomerName(sale.customerId)}
+                        <CardDescription className="mt-1">
+                          {formatDateTimePtBR(sale.timestamp)} • {customerName}
                         </CardDescription>
                       </div>
-                      <div className="text-right space-y-1">
-                        <div className="text-2xl font-bold">{formatCurrency(sale.total)}</div>
-                        {sale.paymentMethod === 'Cash' && sale.change > 0 && (
-                          <div className="text-sm text-muted-foreground">
-                            {ptBR.change}: {formatCurrency(sale.change)}
-                          </div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-right mr-2">
+                          <p className="font-bold text-xl">{formatCurrency(sale.total)}</p>
+                        </div>
+                        {isAdmin && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive hover:text-destructive"
+                                disabled={deleteSale.isPending}
+                              >
+                                {deleteSale.isPending ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Excluir Venda</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja excluir esta venda? Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteSale(sale.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         )}
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            {isExpanded ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </CollapsibleTrigger>
                       </div>
                     </div>
                   </CardHeader>
-
-                  <CardContent>
-                    <CollapsibleTrigger className="w-full">
-                      <div className="flex items-center justify-between py-2 hover:bg-muted/50 rounded px-2 transition-colors">
-                        <span className="text-sm font-medium">
-                          {ptBR.viewItems} ({sale.items.length} {ptBR.items(sale.items.length)})
-                        </span>
-                        {isExpanded ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
-                      </div>
-                    </CollapsibleTrigger>
-
-                    <CollapsibleContent>
-                      <Separator className="my-2" />
-                      <div className="space-y-2 mt-4">
-                        {sale.items.map((item, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between py-2 px-2 hover:bg-muted/30 rounded"
-                          >
-                            <div className="flex-1">
-                              <div className="font-medium">{item.productName}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {item.quantity}x {formatCurrency(item.unitPrice)} {ptBR.each}
-                              </div>
-                            </div>
-                            <div className="font-semibold">{formatCurrency(item.subtotal)}</div>
+                  <CollapsibleContent>
+                    <CardContent>
+                      <Separator className="mb-4" />
+                      <div className="space-y-2">
+                        {sale.items.map((item, idx) => (
+                          <div key={idx} className="flex justify-between text-sm">
+                            <span>
+                              {item.productName} × {item.quantity}
+                            </span>
+                            <span className="font-medium">{formatCurrency(item.subtotal)}</span>
                           </div>
                         ))}
-                        <Separator className="my-2" />
-                        <div className="flex items-center justify-between py-2 px-2 bg-muted/50 rounded">
-                          <span className="font-bold">{ptBR.total}</span>
-                          <span className="font-bold text-lg">{formatCurrency(sale.total)}</span>
-                        </div>
                       </div>
-                    </CollapsibleContent>
-                  </CardContent>
+                    </CardContent>
+                  </CollapsibleContent>
                 </Collapsible>
               </Card>
             );

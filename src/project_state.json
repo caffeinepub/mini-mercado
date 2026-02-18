@@ -1,32 +1,41 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project includes a sales integration and now needs a sales history screen.",
-  "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "summary": "Multi-store point-of-sale system with Internet Identity-based tenant isolation and payment method classification",
+  "architectural_notes": [
+    "Multi-tenant architecture using Internet Identity Principal as owner_id for data isolation",
+    "All database tables (Products, Customers, Sales, History, Cash) filtered by caller Principal",
+    "Payment methods stored as distinct enum values: pix, debito, credito (not default to credito)",
+    "Reports aggregate sales data grouped by payment method type",
+    "Platform uses Motoko backend on Internet Computer (no external SQL databases or RLS)"
+  ],
+  "known_issues": [
+    "Payment method classification bug: Pix and Debit sales incorrectly saved as Credit in database",
+    "Previous multi-tenant build attempts failed (needs simplified approach)"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-add-a-new-sales-history-screen-that-lists-all-recorded-sales-from-the-backend-and-makes-them-easy-to-review-date-time-customer-total-payment-method-and-change-for-cash-payments-with-each-sale-expandable-to-show-item-by-item-details-product-name-quantity-unit-price-subtotal",
-      "title": "Add a new Sales History screen that lists all recorded sales from the backend and makes them easy to review (date/time, customer, total, payment method, and change for cash payments), with each sale expandable to show item-by-item details (product name, quantity, unit price/subtotal).",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-navigation-to-the-sales-history-screen-from-the-dashboard-and-from-the-app-s-page-switching-logic-in-frontend-src-app-tsx-extend-the-page-union-and-renderpage-switch-accordingly",
-      "title": "Add navigation to the Sales History screen from the Dashboard and from the app's page-switching logic in `frontend/src/App.tsx` (extend the `Page` union and `renderPage` switch accordingly).",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-extend-the-existing-localization-file-frontend-src-i18n-ptbr-ts-with-the-minimal-new-labels-needed-for-the-sales-history-navigation-and-page-headings-reusing-existing-helpers-e-g-payment-method-label-and-date-formatting-where-appropriate",
-      "title": "Extend the existing localization file `frontend/src/i18n/ptBR.ts` with the minimal new labels needed for the Sales History navigation and page headings, reusing existing helpers (e.g., payment method label and date formatting) where appropriate.",
+      "id": "feature-fix-the-payment-method-mapping-in-frontend-src-backend-mappers-ts-to-ensure-correct-bidirectional-conversion-between-frontend-paymentmethod-enum-values-pix-debit-credit-and-backend-string-values-pix-debito-credito-without-any-incorrect-defaults",
+      "title": "Fix the payment method mapping in frontend/src/backend/mappers.ts to ensure correct bidirectional conversion between frontend PaymentMethod enum values (PIX, DEBIT, CREDIT) and backend string values (pix, debito, credito) without any incorrect defaults.",
       "reqIds": [
         "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-sales-report-query-logic-in-frontend-src-features-cashregister-reporting-ts-to-correctly-group-and-aggregate-sales-by-the-three-distinct-payment-methods-pix-debito-credito-displaying-separate-totals-for-each-method",
+      "title": "Update the sales report query logic in frontend/src/features/cashregister/reporting.ts to correctly group and aggregate sales by the three distinct payment methods (pix, debito, credito), displaying separate totals for each method.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-payment-method-confirmation-display-in-the-sale-summary-section-of-frontend-src-features-pos-checkoutpanel-tsx-that-clearly-shows-payment-selected-method-before-the-user-clicks-the-complete-sale-button",
+      "title": "Add a payment method confirmation display in the sale summary section of frontend/src/features/pos/CheckoutPanel.tsx that clearly shows 'Payment: [Selected Method]' before the user clicks the 'Complete Sale' button.",
+      "reqIds": [
+        "REQ-5"
       ],
       "version": 1
     }
@@ -34,12 +43,66 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add a sales history screen (tela de histórico de vendas).",
+      "summary": "Implement multi-tenant isolation using Internet Identity (each login = separate store with isolated data)",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Fix payment method classification bug (Pix and Debit incorrectly saved as Credit)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Update payment submission logic to correctly save pix, debito, and credito as distinct values",
+      "reqIds": [
+        "AR-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Remove default payment method value that forces all sales to Credit",
+      "reqIds": [
+        "AR-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Update report queries to group sales by payment method (Pix, Debit, Credit) separately",
+      "reqIds": [
+        "AR-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add payment method confirmation display in sale summary before completion",
+      "reqIds": [
+        "AR-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Review and fix the submitOrder or concluirVenda function in backend/main.mo to ensure the metodo_pagamento field correctly stores distinct values: 'pix', 'debito', and 'credito' as received from the frontend without any default override.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Update the Sale data type schema in backend/main.mo to explicitly validate and store the three distinct payment method values (pix, debito, credito) without any default value that could force all sales to 'credito'.",
+      "reqIds": [
+        "REQ-2"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Add a Sales History screen",
+  "projectName": "Multi-Store POS",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

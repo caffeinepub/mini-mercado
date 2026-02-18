@@ -15,24 +15,26 @@ export function centsToBrl(cents: bigint): number {
 // Map frontend payment method to backend
 export function mapPaymentMethodToBackend(method: FrontendPaymentMethod): BackendPaymentMethod {
   switch (method) {
-    case 'Cash':
-      return BackendPaymentMethod.cash;
-    case 'Credit':
-    case 'Debit':
     case 'PIX':
-      return BackendPaymentMethod.card;
+      return BackendPaymentMethod.pix;
+    case 'Debit':
+      return BackendPaymentMethod.debito;
+    case 'Credit':
+      return BackendPaymentMethod.credito;
     default:
-      return BackendPaymentMethod.card;
+      return BackendPaymentMethod.credito;
   }
 }
 
 // Map backend payment method to frontend
 export function mapPaymentMethodToFrontend(method: BackendPaymentMethod): FrontendPaymentMethod {
   switch (method) {
-    case BackendPaymentMethod.cash:
-      return 'Cash';
-    case BackendPaymentMethod.card:
-      return 'Credit'; // Default card to Credit for display
+    case BackendPaymentMethod.pix:
+      return 'PIX';
+    case BackendPaymentMethod.debito:
+      return 'Debit';
+    case BackendPaymentMethod.credito:
+      return 'Credit';
     default:
       return 'Credit';
   }
@@ -81,7 +83,7 @@ export function mapSaleToFrontend(sale: BackendSale): {
   amountPaid: number;
   change: number;
   paymentMethod: FrontendPaymentMethod;
-  customerId: string;
+  customerId: string | null;
   timestamp: number;
 } {
   return {
@@ -91,7 +93,7 @@ export function mapSaleToFrontend(sale: BackendSale): {
     amountPaid: centsToBrl(sale.totalCents + sale.changeCents),
     change: centsToBrl(sale.changeCents),
     paymentMethod: mapPaymentMethodToFrontend(sale.paymentMethod),
-    customerId: sale.customerId,
+    customerId: sale.customerId ?? null,
     timestamp: Number(sale.date) / 1_000_000, // Convert nanoseconds to milliseconds
   };
 }
@@ -110,7 +112,7 @@ export function mapCashRegisterSessionToFrontend(session: BackendCashRegisterSes
     initialFloat: centsToBrl(session.initialFloatCents),
     openedAt: Number(session.openTime) / 1_000_000,
     isOpen: session.isOpen,
-    closedAt: session.closeTime ? Number(session.closeTime) / 1_000_000 : undefined,
+    closedAt: session.closeTime ? Number(session.closeTime) : undefined,
     finalBalance: session.finalBalanceCents ? centsToBrl(session.finalBalanceCents) : undefined,
   };
 }
