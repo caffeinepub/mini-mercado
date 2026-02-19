@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -11,8 +12,9 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
 import type { PaymentMethod } from '../../types/domain';
-import { formatCurrency } from '../../utils/money';
+import { formatCurrency, parseCurrency } from '../../utils/money';
 import { ptBR, getPaymentMethodLabel } from '../../i18n/ptBR';
+import { validateCashPayment, calculateChange } from './payment';
 
 interface CheckoutPanelProps {
   total: number;
@@ -23,7 +25,12 @@ interface CheckoutPanelProps {
 
 export function CheckoutPanel({ total, onComplete, disabled, isProcessing }: CheckoutPanelProps) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>('');
+  const [cashAmountInput, setCashAmountInput] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+
+  const isCashPayment = paymentMethod === 'Cash';
+  const cashAmount = parseCurrency(cashAmountInput);
+  const change = isCashPayment ? calculateChange(cashAmount, total) : 0;
 
   const handleComplete = () => {
     setError(null);
@@ -33,17 +40,30 @@ export function CheckoutPanel({ total, onComplete, disabled, isProcessing }: Che
       return;
     }
 
-    // For all payment methods (PIX, Debit, Credit), amount paid equals total with no change
-    onComplete(paymentMethod, total, 0);
+    if (isCashPayment) {
+      const validationError = validateCashPayment(cashAmount, total);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+      onComplete(paymentMethod, cashAmount, change);
+    } else {
+      // For PIX, Debit, Credit: amount paid equals total with no change
+      onComplete(paymentMethod, total, 0);
+    }
   };
 
-  const isCompleteDisabled = disabled || isProcessing || !paymentMethod;
+  const isCompleteDisabled = disabled || isProcessing || !paymentMethod || (isCashPayment && cashAmount < total);
 
   return (
     <div className="space-y-4">
       <div className="grid gap-2">
         <Label htmlFor="payment-method">{ptBR.paymentMethodRequired}</Label>
-        <Select value={paymentMethod} onValueChange={(value) => setPaymentMethod(value as PaymentMethod)} disabled={isProcessing}>
+        <Select value={paymentMethod} onValueChange={(value) => {
+          setPaymentMethod(value as PaymentMethod);
+          setError(null);
+          setCashAmountInput('');
+        }} disabled={isProcessing}>
           <SelectTrigger id="payment-method">
             <SelectValue placeholder={ptBR.selectPaymentMethod} />
           </SelectTrigger>
@@ -51,9 +71,30 @@ export function CheckoutPanel({ total, onComplete, disabled, isProcessing }: Che
             <SelectItem value="PIX">{getPaymentMethodLabel('PIX')}</SelectItem>
             <SelectItem value="Debit">{getPaymentMethodLabel('Debit')}</SelectItem>
             <SelectItem value="Credit">{getPaymentMethodLabel('Credit')}</SelectItem>
+            <SelectItem value="Cash">{getPaymentMethodLabel('Cash')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
+
+      {/* Cash payment input */}
+      {isCashPayment && (
+        <div className="grid gap-2">
+          <Label htmlFor="cash-amount">{ptBR.amountPaid}</Label>
+          <Input
+            id="cash-amount"
+            type="text"
+            inputMode="decimal"
+            placeholder="0,00"
+            value={cashAmountInput}
+            onChange={(e) => {
+              setCashAmountInput(e.target.value);
+              setError(null);
+            }}
+            disabled={isProcessing}
+            className="text-lg"
+          />
+        </div>
+      )}
 
       {error && (
         <div className="text-sm text-destructive">{error}</div>
@@ -75,6 +116,16 @@ export function CheckoutPanel({ total, onComplete, disabled, isProcessing }: Che
         <span>{ptBR.total}:</span>
         <span>{formatCurrency(total)}</span>
       </div>
+
+      {/* Change display for cash payments */}
+      {isCashPayment && cashAmount >= total && (
+        <div className="bg-primary/10 p-3 rounded-md border-2 border-primary">
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-semibold">{ptBR.change}:</span>
+            <span className="text-2xl font-bold text-primary">{formatCurrency(change)}</span>
+          </div>
+        </div>
+      )}
 
       <Button
         onClick={handleComplete}

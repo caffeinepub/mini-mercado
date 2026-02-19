@@ -2,10 +2,32 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-payment-method-mapping-in-frontend-src-backend-mappers-ts-to-ensure-correct-bidirectional-conversion-between-frontend-paymentmethod-enum-values-pix-debit-credit-and-backend-string-values-pix-debito-credito-without-any-incorrect-defaults",
-      "featureTitle": "Fix the payment method mapping in frontend/src/backend/mappers.ts to ensure correct bidirectional conversion between frontend PaymentMethod enum values (PIX, DEBIT, CREDIT) and backend string values (pix, debito, credito) without any incorrect defaults.",
+      "featureId": "feature-update-frontend-payment-method-types-and-mappers-to-support-cash-as-a-payment-method-mapping-it-to-from-the-backend-dinheiro-variant",
+      "featureTitle": "Update frontend payment method types and mappers to support 'cash' as a payment method, mapping it to/from the backend 'dinheiro' variant",
       "files": [
-        "frontend/src/backend/mappers.ts"
+        "frontend/src/backend/mappers.ts",
+        "frontend/src/features/pos/payment.ts",
+        "frontend/src/i18n/ptBR.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-cash-payment-option-button-to-checkoutpanel-alongside-pix-debit-and-credit-payment-method-buttons",
+      "featureTitle": "Add cash payment option button to CheckoutPanel alongside PIX, Debit, and Credit payment method buttons",
+      "files": [
+        "frontend/src/features/pos/CheckoutPanel.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -22,11 +44,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-sales-report-query-logic-in-frontend-src-features-cashregister-reporting-ts-to-correctly-group-and-aggregate-sales-by-the-three-distinct-payment-methods-pix-debito-credito-displaying-separate-totals-for-each-method",
-      "featureTitle": "Update the sales report query logic in frontend/src/features/cashregister/reporting.ts to correctly group and aggregate sales by the three distinct payment methods (pix, debito, credito), displaying separate totals for each method.",
+      "featureId": "feature-implement-change-calculation-interface-that-appears-when-cash-payment-is-selected-with-an-input-field-for-the-amount-tendered-and-automatic-calculation-and-display-of-change-due",
+      "featureTitle": "Implement change calculation interface that appears when cash payment is selected, with an input field for the amount tendered and automatic calculation and display of change due",
       "files": [
-        "frontend/src/features/cashregister/CashClosePanel.tsx",
-        "frontend/src/features/cashregister/reporting.ts"
+        "frontend/src/features/pos/CheckoutPanel.tsx",
+        "frontend/src/features/pos/payment.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -43,10 +65,12 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-payment-method-confirmation-display-in-the-sale-summary-section-of-frontend-src-features-pos-checkoutpanel-tsx-that-clearly-shows-payment-selected-method-before-the-user-clicks-the-complete-sale-button",
-      "featureTitle": "Add a payment method confirmation display in the sale summary section of frontend/src/features/pos/CheckoutPanel.tsx that clearly shows 'Payment: [Selected Method]' before the user clicks the 'Complete Sale' button.",
+      "featureId": "feature-update-cash-register-reporting-to-include-cash-payment-method-in-the-breakdown-calculations-alongside-pix-debit-and-credit",
+      "featureTitle": "Update cash register reporting to include cash payment method in the breakdown calculations alongside PIX, debit, and credit",
       "files": [
-        "frontend/src/features/pos/CheckoutPanel.tsx"
+        "frontend/src/features/cashregister/CashClosePanel.tsx",
+        "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
+        "frontend/src/features/cashregister/reporting.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",

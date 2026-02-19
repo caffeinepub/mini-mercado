@@ -1,39 +1,38 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Multi-store point-of-sale system with Internet Identity-based tenant isolation and payment method classification",
-  "architectural_notes": [
-    "Multi-tenant architecture using Internet Identity Principal as owner_id for data isolation",
-    "All database tables (Products, Customers, Sales, History, Cash) filtered by caller Principal",
-    "Payment methods stored as distinct enum values: pix, debito, credito (not default to credito)",
-    "Reports aggregate sales data grouped by payment method type",
-    "Platform uses Motoko backend on Internet Computer (no external SQL databases or RLS)"
-  ],
-  "known_issues": [
-    "Payment method classification bug: Pix and Debit sales incorrectly saved as Credit in database",
-    "Previous multi-tenant build attempts failed (needs simplified approach)"
-  ],
-  "isFixRequest": true,
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-fix-the-payment-method-mapping-in-frontend-src-backend-mappers-ts-to-ensure-correct-bidirectional-conversion-between-frontend-paymentmethod-enum-values-pix-debit-credit-and-backend-string-values-pix-debito-credito-without-any-incorrect-defaults",
-      "title": "Fix the payment method mapping in frontend/src/backend/mappers.ts to ensure correct bidirectional conversion between frontend PaymentMethod enum values (PIX, DEBIT, CREDIT) and backend string values (pix, debito, credito) without any incorrect defaults.",
+      "id": "feature-update-frontend-payment-method-types-and-mappers-to-support-cash-as-a-payment-method-mapping-it-to-from-the-backend-dinheiro-variant",
+      "title": "Update frontend payment method types and mappers to support 'cash' as a payment method, mapping it to/from the backend 'dinheiro' variant",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-cash-payment-option-button-to-checkoutpanel-alongside-pix-debit-and-credit-payment-method-buttons",
+      "title": "Add cash payment option button to CheckoutPanel alongside PIX, Debit, and Credit payment method buttons",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-sales-report-query-logic-in-frontend-src-features-cashregister-reporting-ts-to-correctly-group-and-aggregate-sales-by-the-three-distinct-payment-methods-pix-debito-credito-displaying-separate-totals-for-each-method",
-      "title": "Update the sales report query logic in frontend/src/features/cashregister/reporting.ts to correctly group and aggregate sales by the three distinct payment methods (pix, debito, credito), displaying separate totals for each method.",
+      "id": "feature-implement-change-calculation-interface-that-appears-when-cash-payment-is-selected-with-an-input-field-for-the-amount-tendered-and-automatic-calculation-and-display-of-change-due",
+      "title": "Implement change calculation interface that appears when cash payment is selected, with an input field for the amount tendered and automatic calculation and display of change due",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-payment-method-confirmation-display-in-the-sale-summary-section-of-frontend-src-features-pos-checkoutpanel-tsx-that-clearly-shows-payment-selected-method-before-the-user-clicks-the-complete-sale-button",
-      "title": "Add a payment method confirmation display in the sale summary section of frontend/src/features/pos/CheckoutPanel.tsx that clearly shows 'Payment: [Selected Method]' before the user clicks the 'Complete Sale' button.",
+      "id": "feature-update-cash-register-reporting-to-include-cash-payment-method-in-the-breakdown-calculations-alongside-pix-debit-and-credit",
+      "title": "Update cash register reporting to include cash payment method in the breakdown calculations alongside PIX, debit, and credit",
       "reqIds": [
         "REQ-5"
       ],
@@ -43,66 +42,28 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Implement multi-tenant isolation using Internet Identity (each login = separate store with isolated data)",
+      "summary": "Add cash payment option with change calculation",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Fix payment method classification bug (Pix and Debit incorrectly saved as Credit)",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Update payment submission logic to correctly save pix, debito, and credito as distinct values",
-      "reqIds": [
-        "AR-2"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Remove default payment method value that forces all sales to Credit",
-      "reqIds": [
-        "AR-2"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Update report queries to group sales by payment method (Pix, Debit, Credit) separately",
-      "reqIds": [
-        "AR-2"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Add payment method confirmation display in sale summary before completion",
-      "reqIds": [
-        "AR-2"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Review and fix the submitOrder or concluirVenda function in backend/main.mo to ensure the metodo_pagamento field correctly stores distinct values: 'pix', 'debito', and 'credito' as received from the frontend without any default override.",
+      "summary": "Add 'dinheiro' (cash) as a fourth payment method option in the backend PaymentMethod variant, alongside the existing pix, debito, and credito options",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
     },
     {
-      "id": "AR-8",
-      "summary": "Update the Sale data type schema in backend/main.mo to explicitly validate and store the three distinct payment method values (pix, debito, credito) without any default value that could force all sales to 'credito'.",
+      "id": "AR-7",
+      "summary": "Update sales history display to show cash payment method and preserve the display for historical sales with other payment methods",
       "reqIds": [
-        "REQ-2"
+        "REQ-6"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Multi-Store POS",
+  "projectName": "Mini Market Manager",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -21,7 +21,7 @@ export interface Customer {
   eligibleForRaffle?: boolean;
 }
 
-export type PaymentMethod = 'PIX' | 'Credit' | 'Debit';
+export type PaymentMethod = 'PIX' | 'Credit' | 'Debit' | 'Cash';
 
 export interface SaleItem {
   productId: string;
@@ -60,6 +60,7 @@ export interface CashCloseRecord {
   creditTotal: number;
   debitTotal: number;
   pixTotal: number;
+  cashTotal: number;
   closedAt: number;
 }
 

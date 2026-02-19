@@ -1,63 +1,84 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T22:07:30.718Z",
+  "generatedAt": "2026-02-19T03:21:04.707Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 3,
+    "total": 6,
+    "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Review and fix the submitOrder or concluirVenda function in backend/main.mo to ensure the metodo_pagamento field correctly stores distinct values: 'pix', 'debito', and 'credito' as received from the frontend without any default override.",
+        "summary": "Add 'dinheiro' (cash) as a fourth payment method option in the backend PaymentMethod variant, alongside the existing pix, debito, and credito options",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Update the Sale data type schema in backend/main.mo to explicitly validate and store the three distinct payment method values (pix, debito, credito) without any default value that could force all sales to 'credito'.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Update frontend payment method types and mappers to support 'cash' as a payment method, mapping it to/from the backend 'dinheiro' variant",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/pos/payment.ts",
+          "frontend/src/backend/mappers.ts",
+          "frontend/src/i18n/ptBR.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/pos/payment.ts",
+          "frontend/src/backend/mappers.ts",
+          "frontend/src/i18n/ptBR.ts"
+        ]
       },
       {
         "id": "REQ-3",
-        "summary": "Fix the payment method mapping in frontend/src/backend/mappers.ts to ensure correct bidirectional conversion between frontend PaymentMethod enum values (PIX, DEBIT, CREDIT) and backend string values (pix, debito, credito) without any incorrect defaults.",
+        "summary": "Add cash payment option button to CheckoutPanel alongside PIX, Debit, and Credit payment method buttons",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/backend/mappers.ts"
+          "frontend/src/features/pos/CheckoutPanel.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/backend/mappers.ts"
+          "frontend/src/features/pos/CheckoutPanel.tsx"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "Update the sales report query logic in frontend/src/features/cashregister/reporting.ts to correctly group and aggregate sales by the three distinct payment methods (pix, debito, credito), displaying separate totals for each method.",
+        "summary": "Implement change calculation interface that appears when cash payment is selected, with an input field for the amount tendered and automatic calculation and display of change due",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cashregister/reporting.ts",
-          "frontend/src/features/cashregister/CashClosePanel.tsx"
+          "frontend/src/features/pos/CheckoutPanel.tsx",
+          "frontend/src/features/pos/payment.ts"
         ],
         "matchedFiles": [
-          "frontend/src/features/cashregister/reporting.ts",
-          "frontend/src/features/cashregister/CashClosePanel.tsx"
+          "frontend/src/features/pos/CheckoutPanel.tsx",
+          "frontend/src/features/pos/payment.ts"
         ]
       },
       {
         "id": "REQ-5",
-        "summary": "Add a payment method confirmation display in the sale summary section of frontend/src/features/pos/CheckoutPanel.tsx that clearly shows 'Payment: [Selected Method]' before the user clicks the 'Complete Sale' button.",
+        "summary": "Update cash register reporting to include cash payment method in the breakdown calculations alongside PIX, debit, and credit",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/pos/CheckoutPanel.tsx"
+          "frontend/src/features/cashregister/reporting.ts",
+          "frontend/src/features/cashregister/CashClosePanel.tsx",
+          "frontend/src/features/cashregister/ClosingsHistoryList.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/pos/CheckoutPanel.tsx"
+          "frontend/src/features/cashregister/reporting.ts",
+          "frontend/src/features/cashregister/CashClosePanel.tsx",
+          "frontend/src/features/cashregister/ClosingsHistoryList.tsx"
         ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Update sales history display to show cash payment method and preserve the display for historical sales with other payment methods",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/pages/SalesHistoryPage.tsx"
+        ],
+        "matchedFiles": []
       }
     ]
   },
@@ -65,7 +86,6 @@
     "backend/main.mo",
     "backend/migration.mo",
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
@@ -77,13 +97,11 @@
     "frontend/src/features/cashregister/CashClosePanel.tsx",
     "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
     "frontend/src/features/cashregister/reporting.ts",
-    "frontend/src/features/customers/CustomerDetail.tsx",
     "frontend/src/features/pos/CheckoutPanel.tsx",
     "frontend/src/features/pos/payment.ts",
-    "frontend/src/hooks/useQueries.ts",
     "frontend/src/i18n/ptBR.ts",
-    "frontend/src/pages/SalesHistoryPage.tsx",
     "frontend/src/types/domain.ts",
+    "frontend/src/utils/money.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

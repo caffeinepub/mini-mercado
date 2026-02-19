@@ -68,7 +68,8 @@ export interface UserProfile {
 export enum PaymentMethod {
     pix = "pix",
     credito = "credito",
-    debito = "debito"
+    debito = "debito",
+    dinheiro = "dinheiro"
 }
 export enum UserRole {
     admin = "admin",

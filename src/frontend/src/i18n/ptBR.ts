@@ -99,6 +99,7 @@ export const ptBR = {
     'Credit': 'Crédito',
     'Debit': 'Débito',
     'PIX': 'PIX',
+    'Cash': 'Dinheiro',
   },
   
   // Payment errors
@@ -157,6 +158,7 @@ export const ptBR = {
   credit: 'Crédito',
   debit: 'Débito',
   pix: 'PIX',
+  cash: 'Dinheiro',
   noCashSessionOpen: 'Nenhuma sessão de caixa está aberta no momento. Abra uma sessão para começar a rastrear vendas.',
   
   // Closings history

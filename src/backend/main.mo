@@ -14,9 +14,6 @@ import Migration "migration";
 
 (with migration = Migration.run)
 actor {
-  // type constants
-  let floatCurrencyDecimals = Int.fromNat(2);
-  let raffleThresholdCents = 5000; // 50.00 with 2 decimals
   type ValidatedPriceRange = {
     #aboveZero;
     #zeroValue;
@@ -27,9 +24,9 @@ actor {
     #pix;
     #debito;
     #credito;
+    #dinheiro;
   };
 
-  // backend types
   type Customer = {
     id : Text;
     name : Text;
@@ -104,7 +101,6 @@ actor {
     name : Text;
   };
 
-  // State variables
   var nextSaleId = 1;
   var nextRegisterSessionId = 1;
   let customers = Map.empty<Text, Customer>();
@@ -117,8 +113,6 @@ actor {
 
   include MixinAuthorization(accessControlState);
   include MixinStorage();
-
-  // USER PROFILE METHODS
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
@@ -141,14 +135,11 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // CUSTOMER MANAGEMENT METHODS
-
   public shared ({ caller }) func createCustomer(request : CreateCustomerRequest) : async Customer {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can create customers");
     };
 
-    // Check if customer already exists
     switch (customers.get(request.id)) {
       case (?_) { Runtime.trap("Customer with this ID already exists") };
       case (null) {
@@ -199,8 +190,6 @@ actor {
     customers.values().toArray();
   };
 
-  // SALES RELATED METHODS
-
   public query ({ caller }) func getSale(id : Nat) : async ?Sale {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can view sales");
@@ -237,7 +226,6 @@ actor {
       Runtime.trap("Unauthorized: Only users can record sales");
     };
 
-    // Validate that customer exists if provided
     switch (customerId) {
       case (?id) {
         switch (customers.get(id)) {
@@ -248,16 +236,8 @@ actor {
       case (null) { () };
     };
 
-    // Validate items array is not empty
     if (items.size() == 0) {
       Runtime.trap("Cannot record sale with no items");
-    };
-
-    // Validate payment method and amount paid
-    switch (paymentMethod) {
-      case (#pix) { () };
-      case (#debito) { () };
-      case (#credito) { () };
     };
 
     let totalCents = items.foldLeft(
@@ -267,7 +247,6 @@ actor {
       },
     );
 
-    // Validate total is positive
     if (totalCents <= 0) {
       Runtime.trap("Sale total must be positive");
     };
@@ -285,13 +264,12 @@ actor {
     sales.add(nextSaleId, sale);
     nextSaleId += 1;
 
-    // Update customer purchases and eligibility if customer exists
     switch (customerId) {
       case (?id) {
         switch (customers.get(id)) {
           case (?customer) {
             let updatedTotal = customer.totalPurchasesCents + totalCents;
-            let eligibleForRaffle = updatedTotal >= raffleThresholdCents;
+            let eligibleForRaffle = updatedTotal >= 5000;
             let updatedCustomer : Customer = {
               customer with
               totalPurchasesCents = updatedTotal;
@@ -308,7 +286,6 @@ actor {
     sale;
   };
 
-  // ADMIN-ONLY: Delete specific sale entry from history
   public shared ({ caller }) func deleteSale(id : Nat) : async () {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can manually delete sales history");
@@ -320,8 +297,6 @@ actor {
       };
     };
   };
-
-  // CASH REGISTER METHODS
 
   public shared ({ caller }) func openRegister(request : OpenRegisterRequest) : async CashRegisterSession {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
@@ -407,7 +382,6 @@ actor {
     });
   };
 
-  // Helper function to validate price range (internal only)
   func validatePriceRange(amountCents : Int) : ValidatedPriceRange {
     if (amountCents < 0) {
       #negative;

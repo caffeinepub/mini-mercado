@@ -1,19 +1,19 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T22:07:30.715Z",
-  "summary": "The diff implements payment method bug fixes across backend and frontend. Backend introduces a new PaymentMethod variant type (#pix, #debito, #credito) and migration logic. Frontend updates mappers to handle three payment methods (PIX, Debit, Credit), reporting to aggregate by payment method, and CheckoutPanel to display payment method confirmation. All five requirements appear to be addressed.",
+  "generatedAt": "2026-02-19T03:21:04.704Z",
+  "summary": "The diff successfully implements all requested requirements for adding cash payment with change calculation. Backend adds 'dinheiro' variant, frontend adds 'Cash' type with proper mapping, CheckoutPanel includes cash button with change calculation UI, reporting includes cash breakdown, and sales history displays cash payments. A migration module handles backward compatibility for existing sales data.",
   "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Added backend/migration.mo with migration logic to convert old PaymentMethod type (cash/card) to new type (pix/debito/credito)",
-      "reason": "BuildRequest does not mention creating a migration module or handling legacy payment method data migration. The migration module sets all old sales to #pix by default, which was not requested.",
+      "description": "Migration module (backend/migration.mo) for converting old sales data to new payment method structure",
+      "reason": "The BuildRequest explicitly states as a constraint to 'Maintain compatibility with existing sales data', but does not request a migration module. The migration.mo file implements a data migration system that was not specified in any requirement.",
       "evidence": [
         "backend/migration.mo"
       ]
     }
   ],
-  "confidence": 0.85,
+  "confidence": 0.95,
   "changed_files": [
     "backend/main.mo",
     "backend/migration.mo",
@@ -22,13 +22,11 @@
     "frontend/src/features/cashregister/CashClosePanel.tsx",
     "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
     "frontend/src/features/cashregister/reporting.ts",
-    "frontend/src/features/customers/CustomerDetail.tsx",
     "frontend/src/features/pos/CheckoutPanel.tsx",
     "frontend/src/features/pos/payment.ts",
-    "frontend/src/hooks/useQueries.ts",
     "frontend/src/i18n/ptBR.ts",
-    "frontend/src/pages/SalesHistoryPage.tsx",
     "frontend/src/types/domain.ts",
+    "frontend/src/utils/money.ts",
     "project_state.json"
   ]
 }

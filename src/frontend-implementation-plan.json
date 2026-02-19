@@ -1,59 +1,111 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix payment method classification bug (frontend changes)",
+  "title": "Add cash payment option with change calculation",
   "requirements": [
     {
-      "id": "REQ-3",
-      "summary": "Fix payment method mapping to ensure correct bidirectional conversion between frontend PaymentMethod enum values and backend string values without incorrect defaults",
+      "id": "REQ-2",
+      "summary": "Update frontend payment method types and mappers to support 'cash' payment method",
       "acceptanceCriteria": [
-        "The mapPaymentMethodToBackend function correctly maps PIX to 'pix', DEBIT to 'debito', and CREDIT to 'credito'",
-        "The mapPaymentMethodFromBackend function correctly maps 'pix' to PIX, 'debito' to DEBIT, and 'credito' to CREDIT",
-        "No mapping produces an incorrect default value"
+        "Frontend PaymentMethod type includes 'cash' option",
+        "Mappers correctly convert between frontend 'cash' and backend 'dinheiro'",
+        "Portuguese label 'Dinheiro' displays in the UI"
       ],
       "file_operations": [
+        {
+          "path": "frontend/src/features/pos/payment.ts",
+          "operation": "modify",
+          "description": "Add 'cash' to the PaymentMethod type definition and ensure it maps to 'dinheiro' label in Portuguese"
+        },
         {
           "path": "frontend/src/backend/mappers.ts",
           "operation": "modify",
-          "description": "Review and fix the mapPaymentMethodToBackend and mapPaymentMethodFromBackend functions to ensure accurate bidirectional mapping between frontend PaymentMethod enum (PIX, DEBIT, CREDIT) and backend string values ('pix', 'debito', 'credito'). Verify that no switch case or conditional uses an incorrect default that forces all values to 'credito'. Ensure the mapping is exhaustive and explicit for all three payment methods."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Update sales report query logic to correctly group and aggregate sales by three distinct payment methods displaying separate totals",
-      "acceptanceCriteria": [
-        "The cash register closing report displays separate totals for Pix, Debit, and Credit sales",
-        "Payment method grouping correctly identifies and sums sales by their stored payment method value",
-        "The report accurately reflects the actual payment methods used in each sale"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cashregister/reporting.ts",
-          "operation": "modify",
-          "description": "Review and fix the sales aggregation logic in reporting.ts to ensure payment method grouping correctly identifies and separates sales by 'pix', 'debito', and 'credito'. Verify that the grouping logic does not treat different payment methods as a single category and that totals are calculated independently for each method. Ensure the report accurately reflects the payment methods stored in each sale without any default consolidation."
+          "description": "Update toBackendPaymentMethod and fromBackendPaymentMethod functions to handle 'cash' to 'dinheiro' conversion between frontend and backend types"
         },
         {
-          "path": "frontend/src/features/cashregister/CashClosePanel.tsx",
+          "path": "frontend/src/i18n/ptBR.ts",
           "operation": "modify",
-          "description": "Update the cash register closing panel UI to display separate totals for Pix, Debit, and Credit sales. Ensure the component uses the corrected reporting logic from reporting.ts and renders distinct line items or sections for each payment method with accurate totals. Verify that the displayed payment method labels match the backend values and user selections."
+          "description": "Add 'Dinheiro' label to payment method translations for the cash payment option"
         }
       ]
     },
     {
-      "id": "REQ-5",
-      "summary": "Add payment method confirmation display in the sale summary section showing the selected payment method before completing the sale",
+      "id": "REQ-3",
+      "summary": "Add cash payment button to CheckoutPanel alongside existing payment method buttons",
       "acceptanceCriteria": [
-        "The checkout panel displays the selected payment method in the summary section",
-        "The payment method label reads 'Payment: Pix', 'Payment: Debit', or 'Payment: Credit' based on user selection",
-        "The confirmation is visible before the user completes the sale",
-        "The displayed payment method matches the value that will be saved to the backend"
+        "Cash payment button appears in checkout panel",
+        "Button is visually consistent with other payment method buttons",
+        "Selecting cash enables the change calculation flow"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/pos/CheckoutPanel.tsx",
           "operation": "modify",
-          "description": "Add a payment method confirmation display in the sale summary section of CheckoutPanel.tsx that clearly shows 'Payment: [Selected Method]' before the user clicks the 'Complete Sale' button. Use the selected payment method from the component state and format it for display using localization helpers from i18n/ptBR.ts if available. Ensure the displayed value matches exactly what will be sent to the backend (PIX, DEBIT, or CREDIT from the frontend enum, which will be mapped to 'pix', 'debito', or 'credito'). Position the confirmation prominently in the summary area so users can verify their selection before finalizing the transaction."
+          "description": "Add a fourth payment method button for 'Dinheiro' (cash) alongside PIX, Debit, and Credit buttons; ensure it triggers the change calculation UI when selected"
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Implement change calculation interface when cash payment is selected",
+      "acceptanceCriteria": [
+        "Input field accepts the cash amount tendered by customer",
+        "Change amount is calculated as (tendered amount - cart total)",
+        "Change is displayed in BRL currency format",
+        "Validation prevents completing sale if tendered amount is less than total",
+        "Change calculation updates in real-time as user types"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/pos/CheckoutPanel.tsx",
+          "operation": "modify",
+          "description": "Add conditional UI that appears when cash payment is selected, including an input field for amount tendered, real-time change calculation display in BRL format, and validation that disables the complete sale button when tendered amount is insufficient"
+        },
+        {
+          "path": "frontend/src/features/pos/payment.ts",
+          "operation": "modify",
+          "description": "Add utility functions for cash payment validation and change calculation (tendered amount minus total)"
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Update cash register reporting to include cash payment method in breakdown calculations",
+      "acceptanceCriteria": [
+        "Cash register close panel displays cash payment totals separately",
+        "Cash closing history shows cash payment amounts",
+        "Payment method breakdown calculations include cash transactions"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cashregister/reporting.ts",
+          "operation": "modify",
+          "description": "Update calculatePaymentMethodBreakdown function to include cash payment calculations alongside credit, debit, and PIX"
+        },
+        {
+          "path": "frontend/src/features/cashregister/CashClosePanel.tsx",
+          "operation": "modify",
+          "description": "Add display row for cash payment totals in the payment method breakdown section"
+        },
+        {
+          "path": "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
+          "operation": "modify",
+          "description": "Update closing records display to show cash payment amounts in the payment method breakdown"
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Update sales history display to show cash payment method",
+      "acceptanceCriteria": [
+        "Sales paid with cash display 'Dinheiro' as payment method",
+        "Sales history correctly shows all four payment methods"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SalesHistoryPage.tsx",
+          "operation": "modify",
+          "description": "Ensure sales records correctly display 'Dinheiro' label for cash payments alongside existing payment methods (PIX, Debit, Credit)"
         }
       ]
     }

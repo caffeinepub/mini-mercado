@@ -1,115 +1,112 @@
 {
   "kind": "build_request",
-  "title": "Fix payment method classification bug (Pix and Debit incorrectly saved as Credit)",
-  "projectName": "Multi-Store POS",
-  "priority": "high",
+  "title": "Add cash payment option with change calculation",
+  "projectName": "Mini Market Manager",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Review and fix the submitOrder or concluirVenda function in backend/main.mo to ensure the metodo_pagamento field correctly stores distinct values: 'pix', 'debito', and 'credito' as received from the frontend without any default override.",
+      "text": "Add 'dinheiro' (cash) as a fourth payment method option in the backend PaymentMethod variant, alongside the existing pix, debito, and credito options",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-20"
-        ],
-        "quotes": [
-          "Analise a função de submitOrder ou concluirVenda. Certifique-se de que a variável metodo_pagamento envie valores distintos para o banco de dados: pix, debito e credito."
+          "msg-6"
         ]
       },
       "acceptanceCriteria": [
-        "The backend sale creation function correctly saves the payment method exactly as sent from the frontend",
-        "No default value forces all sales to be classified as 'credito'",
-        "Sales with payment method 'pix' are stored as 'pix'",
-        "Sales with payment method 'debito' are stored as 'debito'",
-        "Sales with payment method 'credito' are stored as 'credito'"
+        "Backend PaymentMethod type includes a 'dinheiro' variant",
+        "Cash payment method can be used when recording sales"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the Sale data type schema in backend/main.mo to explicitly validate and store the three distinct payment method values (pix, debito, credito) without any default value that could force all sales to 'credito'.",
-      "target": "backend",
+      "text": "Update frontend payment method types and mappers to support 'cash' as a payment method, mapping it to/from the backend 'dinheiro' variant",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-20"
-        ],
-        "quotes": [
-          "No banco de dados, certifique-se de que não haja um valor 'padrão' (default) que force toda venda a ser Crédito. O sistema deve validar e salvar exatamente o que foi selecionado no seletor de pagamento."
+          "msg-6"
         ]
       },
       "acceptanceCriteria": [
-        "The Sale type in backend/main.mo has no default payment method value",
-        "The payment method field accepts and stores 'pix', 'debito', and 'credito' distinctly",
-        "Backend validation ensures the payment method value matches one of the three allowed values"
+        "Frontend PaymentMethod type includes 'cash' option",
+        "Mappers correctly convert between frontend 'cash' and backend 'dinheiro'",
+        "Portuguese label 'Dinheiro' displays in the UI"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Fix the payment method mapping in frontend/src/backend/mappers.ts to ensure correct bidirectional conversion between frontend PaymentMethod enum values (PIX, DEBIT, CREDIT) and backend string values (pix, debito, credito) without any incorrect defaults.",
+      "text": "Add cash payment option button to CheckoutPanel alongside PIX, Debit, and Credit payment method buttons",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-20"
-        ],
-        "quotes": [
-          "Certifique-se de que a variável metodo_pagamento envie valores distintos para o banco de dados: pix, debito e credito."
+          "msg-6"
         ]
       },
       "acceptanceCriteria": [
-        "The mapPaymentMethodToBackend function correctly maps PIX to 'pix', DEBIT to 'debito', and CREDIT to 'credito'",
-        "The mapPaymentMethodFromBackend function correctly maps 'pix' to PIX, 'debito' to DEBIT, and 'credito' to CREDIT",
-        "No mapping produces an incorrect default value"
+        "Cash payment button appears in checkout panel",
+        "Button is visually consistent with other payment method buttons",
+        "Selecting cash enables the change calculation flow"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Update the sales report query logic in frontend/src/features/cashregister/reporting.ts to correctly group and aggregate sales by the three distinct payment methods (pix, debito, credito), displaying separate totals for each method.",
+      "text": "Implement change calculation interface that appears when cash payment is selected, with an input field for the amount tendered and automatic calculation and display of change due",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-20"
+          "msg-6"
         ],
         "quotes": [
-          "Atualize a query do sistema de relatório para que ela agrupe as vendas corretamente por tipo de pagamento, permitindo ver o total de Pix, Débito e Crédito de forma isolada."
+          "com o cálculo de troco quando a pessoa for pagar em dinheiro"
         ]
       },
       "acceptanceCriteria": [
-        "The cash register closing report displays separate totals for Pix, Debit, and Credit sales",
-        "Payment method grouping correctly identifies and sums sales by their stored payment method value",
-        "The report accurately reflects the actual payment methods used in each sale"
+        "Input field accepts the cash amount tendered by customer",
+        "Change amount is calculated as (tendered amount - cart total)",
+        "Change is displayed in BRL currency format",
+        "Validation prevents completing sale if tendered amount is less than total",
+        "Change calculation updates in real-time as user types"
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Add a payment method confirmation display in the sale summary section of frontend/src/features/pos/CheckoutPanel.tsx that clearly shows 'Payment: [Selected Method]' before the user clicks the 'Complete Sale' button.",
+      "text": "Update cash register reporting to include cash payment method in the breakdown calculations alongside PIX, debit, and credit",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-20"
-        ],
-        "quotes": [
-          "No resumo da venda, antes de clicar em 'Concluir', exiba uma confirmação clara: 'Pagamento: [Método Selecionado]'."
+          "msg-6"
         ]
       },
       "acceptanceCriteria": [
-        "The checkout panel displays the selected payment method in the summary section",
-        "The payment method label reads 'Payment: Pix', 'Payment: Debit', or 'Payment: Credit' based on user selection",
-        "The confirmation is visible before the user completes the sale",
-        "The displayed payment method matches the value that will be saved to the backend"
+        "Cash register close panel displays cash payment totals separately",
+        "Cash closing history shows cash payment amounts",
+        "Payment method breakdown calculations include cash transactions"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Update sales history display to show cash payment method and preserve the display for historical sales with other payment methods",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Sales paid with cash display 'Dinheiro' as payment method",
+        "Sales history correctly shows all four payment methods"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the authentication system or Internet Identity integration",
-    "Maintain the existing single-actor backend architecture in backend/main.mo",
-    "Do not change immutable frontend paths: useInternetIdentity.ts, useInternetIdentity.tsx, useActor.ts, main.tsx, components/ui",
-    "Use only the supported tech stack: Motoko backend, React + TypeScript + Tailwind frontend"
+    "Do not modify the existing payment methods (pix, debito, credito)",
+    "Maintain compatibility with existing sales data",
+    "Use Portuguese language labels for payment methods in the UI"
   ],
   "nonGoals": [
-    "Implementing multi-tenant isolation (separate issue to be addressed)",
-    "Adding new payment methods beyond Pix, Debit, and Credit",
-    "Changing the overall POS workflow or checkout process",
-    "Modifying the cash register session management logic",
-    "Altering the customer management or raffle eligibility features"
+    "Modifying the raffle eligibility calculation logic",
+    "Changing the cash register opening/closing flow",
+    "Adding other payment methods beyond cash"
   ],
   "imageRequirements": {
     "required": [],

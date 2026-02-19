@@ -1,25 +1,26 @@
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
-import Text "mo:core/Text";
+import Time "mo:core/Time";
+import Int "mo:core/Int";
+import Storage "blob-storage/Storage";
 import Principal "mo:core/Principal";
-import Blob "mo:core/Blob";
+import AccessControl "authorization/access-control";
 
 module {
+  // Old type constants
+  type ValidatedPriceRange = {
+    #aboveZero;
+    #zeroValue;
+    #negative;
+  };
+
   type OldPaymentMethod = {
-    #cash;
-    #card;
+    #pix;
+    #debito;
+    #credito;
   };
 
-  type OldSale = {
-    id : Nat;
-    customerId : ?Text;
-    items : [SaleItem];
-    paymentMethod : OldPaymentMethod;
-    totalCents : Int;
-    changeCents : Int;
-    date : Int;
-  };
-
+  // Old backend types
   type Customer = {
     id : Text;
     name : Text;
@@ -43,7 +44,7 @@ module {
   type Item = {
     id : Text;
     name : Text;
-    blob : Blob;
+    blob : Storage.ExternalBlob;
     priceCents : Int;
   };
 
@@ -55,11 +56,21 @@ module {
     totalCents : Int;
   };
 
+  type Sale = {
+    id : Nat;
+    customerId : ?Text;
+    items : [SaleItem];
+    paymentMethod : OldPaymentMethod;
+    totalCents : Int;
+    changeCents : Int;
+    date : Time.Time;
+  };
+
   type CashRegisterSession = {
     id : Nat;
     initialFloatCents : Int;
-    openTime : Int;
-    closeTime : ?Int;
+    openTime : Time.Time;
+    closeTime : ?Time.Time;
     finalBalanceCents : ?Int;
     isOpen : Bool;
   };
@@ -67,7 +78,7 @@ module {
   type ClosingRecord = {
     id : Nat;
     sessionId : Nat;
-    closeTime : Int;
+    closeTime : Time.Time;
     finalBalanceCents : Int;
   };
 
@@ -84,14 +95,17 @@ module {
     name : Text;
   };
 
-  type OldActor = {
+  type OldState = {
+    floatCurrencyDecimals : Int;
+    raffleThresholdCents : Int;
     nextSaleId : Nat;
     nextRegisterSessionId : Nat;
     customers : Map.Map<Text, Customer>;
-    sales : Map.Map<Nat, OldSale>;
+    sales : Map.Map<Nat, Sale>;
     items : Map.Map<Text, Item>;
     registerSessions : Map.Map<Nat, CashRegisterSession>;
     closings : Map.Map<Nat, ClosingRecord>;
+    accessControlState : AccessControl.AccessControlState;
     userProfiles : Map.Map<Principal, UserProfile>;
   };
 
@@ -99,6 +113,7 @@ module {
     #pix;
     #debito;
     #credito;
+    #dinheiro;
   };
 
   type NewSale = {
@@ -108,10 +123,10 @@ module {
     paymentMethod : NewPaymentMethod;
     totalCents : Int;
     changeCents : Int;
-    date : Int;
+    date : Time.Time;
   };
 
-  type NewActor = {
+  type NewState = {
     nextSaleId : Nat;
     nextRegisterSessionId : Nat;
     customers : Map.Map<Text, Customer>;
@@ -119,17 +134,34 @@ module {
     items : Map.Map<Text, Item>;
     registerSessions : Map.Map<Nat, CashRegisterSession>;
     closings : Map.Map<Nat, ClosingRecord>;
+    accessControlState : AccessControl.AccessControlState;
     userProfiles : Map.Map<Principal, UserProfile>;
   };
 
-  public func run(old : OldActor) : NewActor {
-    let newSales = old.sales.map<Nat, OldSale, NewSale>(
+  public func run(old : OldState) : NewState {
+    let newSales = old.sales.map<Nat, Sale, NewSale>(
       func(_id, oldSale) {
-        {
-          oldSale with paymentMethod = #pix;
-        };
+        { oldSale with paymentMethod = convertPaymentMethod(oldSale.paymentMethod) };
       }
     );
-    { old with sales = newSales };
+    {
+      nextSaleId = old.nextSaleId;
+      nextRegisterSessionId = old.nextRegisterSessionId;
+      customers = old.customers;
+      sales = newSales;
+      items = old.items;
+      registerSessions = old.registerSessions;
+      closings = old.closings;
+      accessControlState = old.accessControlState;
+      userProfiles = old.userProfiles;
+    };
+  };
+
+  func convertPaymentMethod(oldMethod : OldPaymentMethod) : NewPaymentMethod {
+    switch (oldMethod) {
+      case (#pix) { #pix };
+      case (#debito) { #debito };
+      case (#credito) { #credito };
+    };
   };
 };

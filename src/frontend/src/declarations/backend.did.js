@@ -54,6 +54,7 @@ export const PaymentMethod = IDL.Variant({
   'pix' : IDL.Null,
   'credito' : IDL.Null,
   'debito' : IDL.Null,
+  'dinheiro' : IDL.Null,
 });
 export const SaleItem = IDL.Record({
   'itemId' : IDL.Text,
@@ -201,6 +202,7 @@ export const idlFactory = ({ IDL }) => {
     'pix' : IDL.Null,
     'credito' : IDL.Null,
     'debito' : IDL.Null,
+    'dinheiro' : IDL.Null,
   });
   const SaleItem = IDL.Record({
     'itemId' : IDL.Text,

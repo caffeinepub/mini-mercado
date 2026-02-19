@@ -161,7 +161,8 @@ export interface UserProfile {
 export enum PaymentMethod {
     pix = "pix",
     credito = "credito",
-    debito = "debito"
+    debito = "debito",
+    dinheiro = "dinheiro"
 }
 export enum UserRole {
     admin = "admin",
@@ -696,8 +697,10 @@ function from_candid_variant_n22(_uploadFile: (file: ExternalBlob) => Promise<Ui
     credito: null;
 } | {
     debito: null;
+} | {
+    dinheiro: null;
 }): PaymentMethod {
-    return "pix" in value ? PaymentMethod.pix : "credito" in value ? PaymentMethod.credito : "debito" in value ? PaymentMethod.debito : value;
+    return "pix" in value ? PaymentMethod.pix : "credito" in value ? PaymentMethod.credito : "debito" in value ? PaymentMethod.debito : "dinheiro" in value ? PaymentMethod.dinheiro : value;
 }
 function from_candid_vec_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_CashRegisterSession>): Array<CashRegisterSession> {
     return value.map((x)=>from_candid_CashRegisterSession_n14(_uploadFile, _downloadFile, x));
@@ -735,6 +738,8 @@ function to_candid_variant_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint
     credito: null;
 } | {
     debito: null;
+} | {
+    dinheiro: null;
 } {
     return value == PaymentMethod.pix ? {
         pix: null
@@ -742,6 +747,8 @@ function to_candid_variant_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint
         credito: null
     } : value == PaymentMethod.debito ? {
         debito: null
+    } : value == PaymentMethod.dinheiro ? {
+        dinheiro: null
     } : value;
 }
 function to_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {

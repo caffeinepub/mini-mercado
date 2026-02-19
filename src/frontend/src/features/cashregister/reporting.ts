@@ -4,6 +4,7 @@ export interface PaymentBreakdown {
   credit: number;
   debit: number;
   pix: number;
+  cash: number;
   total: number;
 }
 
@@ -12,6 +13,7 @@ export function calculatePaymentBreakdown(sales: Sale[]): PaymentBreakdown {
     credit: 0,
     debit: 0,
     pix: 0,
+    cash: 0,
     total: 0,
   };
 
@@ -27,6 +29,9 @@ export function calculatePaymentBreakdown(sales: Sale[]): PaymentBreakdown {
         break;
       case 'PIX':
         breakdown.pix += sale.total;
+        break;
+      case 'Cash':
+        breakdown.cash += sale.total;
         break;
     }
   });

@@ -75,6 +75,10 @@ export function CashClosePanel({ session, sales, onClose, isClosing }: CashClose
                 <span className="text-muted-foreground">{ptBR.credit}:</span>
                 <span className="font-medium">{formatCurrency(breakdown.credit)}</span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{ptBR.cash}:</span>
+                <span className="font-medium">{formatCurrency(breakdown.cash)}</span>
+              </div>
             </div>
           </div>
 

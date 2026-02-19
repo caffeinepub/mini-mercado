@@ -43,7 +43,8 @@ export interface Customer {
 export interface OpenRegisterRequest { 'initialFloatCents' : bigint }
 export type PaymentMethod = { 'pix' : null } |
   { 'credito' : null } |
-  { 'debito' : null };
+  { 'debito' : null } |
+  { 'dinheiro' : null };
 export interface Sale {
   'id' : bigint,
   'paymentMethod' : PaymentMethod,

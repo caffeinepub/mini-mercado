@@ -21,6 +21,8 @@ export function mapPaymentMethodToBackend(method: FrontendPaymentMethod): Backen
       return BackendPaymentMethod.debito;
     case 'Credit':
       return BackendPaymentMethod.credito;
+    case 'Cash':
+      return BackendPaymentMethod.dinheiro;
     default:
       return BackendPaymentMethod.credito;
   }
@@ -35,6 +37,8 @@ export function mapPaymentMethodToFrontend(method: BackendPaymentMethod): Fronte
       return 'Debit';
     case BackendPaymentMethod.credito:
       return 'Credit';
+    case BackendPaymentMethod.dinheiro:
+      return 'Cash';
     default:
       return 'Credit';
   }
