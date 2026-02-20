@@ -23,6 +23,8 @@ export interface Customer {
 
 export type PaymentMethod = 'PIX' | 'Credit' | 'Debit' | 'Cash';
 
+export type SaleStatus = 'active' | 'cancelled';
+
 export interface SaleItem {
   productId: string;
   productName: string;
@@ -42,6 +44,7 @@ export interface Sale {
   customerName?: string;
   timestamp: number;
   cashSessionId?: string;
+  status: SaleStatus;
 }
 
 export interface CashSession {

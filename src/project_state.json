@@ -1,40 +1,46 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
+  "summary": "A point-of-sale (POS) system with sales transaction management, inventory tracking, and financial reporting capabilities",
+  "architectural_notes": [
+    "Sales transactions have status field (active/cancelled)",
+    "Stock quantities automatically adjust on sale cancellation",
+    "Financial reports exclude cancelled sales from totals",
+    "Audit log records all sale modifications for security",
+    "Sale editing triggers proportional inventory recalculation"
+  ],
   "known_issues": [],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-frontend-payment-method-types-and-mappers-to-support-cash-as-a-payment-method-mapping-it-to-from-the-backend-dinheiro-variant",
-      "title": "Update frontend payment method types and mappers to support 'cash' as a payment method, mapping it to/from the backend 'dinheiro' variant",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-cash-payment-option-button-to-checkoutpanel-alongside-pix-debit-and-credit-payment-method-buttons",
-      "title": "Add cash payment option button to CheckoutPanel alongside PIX, Debit, and Credit payment method buttons",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-change-calculation-interface-that-appears-when-cash-payment-is-selected-with-an-input-field-for-the-amount-tendered-and-automatic-calculation-and-display-of-change-due",
-      "title": "Implement change calculation interface that appears when cash payment is selected, with an input field for the amount tendered and automatic calculation and display of change due",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-cash-register-reporting-to-include-cash-payment-method-in-the-breakdown-calculations-alongside-pix-debit-and-credit",
-      "title": "Update cash register reporting to include cash payment method in the breakdown calculations alongside PIX, debit, and credit",
+      "id": "feature-add-cancel-sale-button-to-each-sale-record-in-the-sales-history-ui-that-triggers-cancellation-with-confirmation-dialog",
+      "title": "Add 'Cancel Sale' button to each sale record in the sales history UI that triggers cancellation with confirmation dialog",
       "reqIds": [
         "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-edit-sale-functionality-to-sales-history-that-allows-modifying-payment-method-and-item-quantities-through-a-dialog-interface",
+      "title": "Add 'Edit Sale' functionality to sales history that allows modifying payment method and item quantities through a dialog interface",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-filter-controls-to-sales-history-page-to-toggle-between-active-sales-cancelled-sales-and-all-sales-views",
+      "title": "Add filter controls to sales history page to toggle between 'Active Sales', 'Cancelled Sales', and 'All Sales' views",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-exclude-cancelled-sales-from-daily-financial-reports-and-cash-register-session-totals",
+      "title": "Exclude cancelled sales from daily financial reports and cash register session totals",
+      "reqIds": [
+        "REQ-8"
       ],
       "version": 1
     }
@@ -42,23 +48,57 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add cash payment option with change calculation",
+      "summary": "Sale cancellation system with automatic stock reversal and financial adjustment",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Add 'dinheiro' (cash) as a fourth payment method option in the backend PaymentMethod variant, alongside the existing pix, debito, and credito options",
+      "summary": "Sale editing module to modify payment method and quantity with proportional stock updates",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Audit log table to track who edited sales, what changed, and when",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Sales history filters to separate active and cancelled sales",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Add a 'status' field to Sale records in the backend to track 'active' or 'cancelled' states, defaulting to 'active' for all new sales",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
     },
     {
-      "id": "AR-7",
-      "summary": "Update sales history display to show cash payment method and preserve the display for historical sales with other payment methods",
+      "id": "AR-6",
+      "summary": "Create a backend method to cancel a sale by ID that changes status to 'cancelled', restores product stock quantities, and returns success confirmation",
       "reqIds": [
-        "REQ-6"
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Create a backend method to edit a sale's payment method and item quantities, recalculating totals and adjusting stock proportionally based on quantity changes",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Create an audit log system in the backend that records all sale modifications with timestamp, action type ('cancel' or 'edit'), previous values, new values, and editor identifier",
+      "reqIds": [
+        "REQ-4"
       ],
       "status": "pending"
     }

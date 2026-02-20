@@ -160,6 +160,59 @@ export function useDeleteSale() {
   });
 }
 
+export function useCancelSale() {
+  const { actor } = useAuthenticatedActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (saleId: string) => {
+      if (!actor) throw new Error('Not authenticated');
+      const result = await actor.cancelSaleToday(BigInt(saleId));
+      if (!result) {
+        throw new Error('Não foi possível cancelar a venda. Ela pode já estar cancelada ou ser de um dia anterior.');
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+    },
+  });
+}
+
+export function useEditSale() {
+  const { actor } = useAuthenticatedActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: {
+      saleId: string;
+      paymentMethod: FrontendPaymentMethod;
+      items: FrontendSaleItem[];
+    }) => {
+      if (!actor) throw new Error('Not authenticated');
+      
+      const backendPaymentMethod = mapPaymentMethodToBackend(params.paymentMethod);
+      const backendItems = mapSaleItemsToBackend(params.items);
+      
+      const result = await actor.editSaleToday(
+        BigInt(params.saleId),
+        backendPaymentMethod,
+        backendItems
+      );
+      
+      if (!result) {
+        throw new Error('Não foi possível editar a venda. Ela pode estar cancelada ou ser de um dia anterior.');
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+    },
+  });
+}
+
 export function useIsCallerAdmin() {
   const { actor, isReady } = useAuthenticatedActor();
 

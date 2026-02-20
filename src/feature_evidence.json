@@ -2,75 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-frontend-payment-method-types-and-mappers-to-support-cash-as-a-payment-method-mapping-it-to-from-the-backend-dinheiro-variant",
-      "featureTitle": "Update frontend payment method types and mappers to support 'cash' as a payment method, mapping it to/from the backend 'dinheiro' variant",
+      "featureId": "feature-add-cancel-sale-button-to-each-sale-record-in-the-sales-history-ui-that-triggers-cancellation-with-confirmation-dialog",
+      "featureTitle": "Add 'Cancel Sale' button to each sale record in the sales history UI that triggers cancellation with confirmation dialog",
       "files": [
-        "frontend/src/backend/mappers.ts",
-        "frontend/src/features/pos/payment.ts",
-        "frontend/src/i18n/ptBR.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-cash-payment-option-button-to-checkoutpanel-alongside-pix-debit-and-credit-payment-method-buttons",
-      "featureTitle": "Add cash payment option button to CheckoutPanel alongside PIX, Debit, and Credit payment method buttons",
-      "files": [
-        "frontend/src/features/pos/CheckoutPanel.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-change-calculation-interface-that-appears-when-cash-payment-is-selected-with-an-input-field-for-the-amount-tendered-and-automatic-calculation-and-display-of-change-due",
-      "featureTitle": "Implement change calculation interface that appears when cash payment is selected, with an input field for the amount tendered and automatic calculation and display of change due",
-      "files": [
-        "frontend/src/features/pos/CheckoutPanel.tsx",
-        "frontend/src/features/pos/payment.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-cash-register-reporting-to-include-cash-payment-method-in-the-breakdown-calculations-alongside-pix-debit-and-credit",
-      "featureTitle": "Update cash register reporting to include cash payment method in the breakdown calculations alongside PIX, debit, and credit",
-      "files": [
-        "frontend/src/features/cashregister/CashClosePanel.tsx",
-        "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
-        "frontend/src/features/cashregister/reporting.ts"
+        "frontend/src/components/sales/SaleCancelDialog.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/SalesHistoryPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -83,6 +20,73 @@
       ],
       "testIds": [
         "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-edit-sale-functionality-to-sales-history-that-allows-modifying-payment-method-and-item-quantities-through-a-dialog-interface",
+      "featureTitle": "Add 'Edit Sale' functionality to sales history that allows modifying payment method and item quantities through a dialog interface",
+      "files": [
+        "frontend/src/components/sales/SaleEditDialog.tsx",
+        "frontend/src/components/sales/SaleItemQuantityEditor.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/SalesHistoryPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-filter-controls-to-sales-history-page-to-toggle-between-active-sales-cancelled-sales-and-all-sales-views",
+      "featureTitle": "Add filter controls to sales history page to toggle between 'Active Sales', 'Cancelled Sales', and 'All Sales' views",
+      "files": [
+        "frontend/src/features/sales/SalesFilters.tsx",
+        "frontend/src/features/sales/salesUtils.ts",
+        "frontend/src/pages/SalesHistoryPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-exclude-cancelled-sales-from-daily-financial-reports-and-cash-register-session-totals",
+      "featureTitle": "Exclude cancelled sales from daily financial reports and cash register session totals",
+      "files": [
+        "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
+        "frontend/src/features/cashregister/reporting.ts",
+        "frontend/src/pages/CashRegisterPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-8"
       ],
       "confidence": "high"
     }

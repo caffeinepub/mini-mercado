@@ -40,16 +40,6 @@ export const Customer = IDL.Record({
   'totalPurchasesCents' : IDL.Int,
   'phone' : IDL.Text,
 });
-export const UserProfile = IDL.Record({ 'name' : IDL.Text });
-export const Time = IDL.Int;
-export const CashRegisterSession = IDL.Record({
-  'id' : IDL.Nat,
-  'closeTime' : IDL.Opt(Time),
-  'isOpen' : IDL.Bool,
-  'finalBalanceCents' : IDL.Opt(IDL.Int),
-  'initialFloatCents' : IDL.Int,
-  'openTime' : Time,
-});
 export const PaymentMethod = IDL.Variant({
   'pix' : IDL.Null,
   'credito' : IDL.Null,
@@ -63,14 +53,38 @@ export const SaleItem = IDL.Record({
   'quantity' : IDL.Nat,
   'priceCents' : IDL.Int,
 });
+export const SaleStatus = IDL.Variant({
+  'active' : IDL.Null,
+  'cancelled' : IDL.Null,
+});
+export const Time = IDL.Int;
 export const Sale = IDL.Record({
   'id' : IDL.Nat,
+  'status' : SaleStatus,
   'paymentMethod' : PaymentMethod,
   'date' : Time,
   'totalCents' : IDL.Int,
   'changeCents' : IDL.Int,
   'customerId' : IDL.Opt(IDL.Text),
   'items' : IDL.Vec(SaleItem),
+});
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const CashRegisterSession = IDL.Record({
+  'id' : IDL.Nat,
+  'closeTime' : IDL.Opt(Time),
+  'isOpen' : IDL.Bool,
+  'finalBalanceCents' : IDL.Opt(IDL.Int),
+  'initialFloatCents' : IDL.Int,
+  'openTime' : Time,
+});
+export const SaleEditLog = IDL.Record({
+  'id' : IDL.Nat,
+  'action' : IDL.Variant({ 'edit' : IDL.Null, 'cancel' : IDL.Null }),
+  'saleId' : IDL.Nat,
+  'editor' : IDL.Principal,
+  'newValue' : Sale,
+  'previousValue' : Sale,
+  'timestamp' : Time,
 });
 export const ClosingRecord = IDL.Record({
   'id' : IDL.Nat,
@@ -116,9 +130,16 @@ export const idlService = IDL.Service({
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'cancelSaleToday' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'closeRegister' : IDL.Func([CloseRegisterRequest], [], []),
   'createCustomer' : IDL.Func([CreateCustomerRequest], [Customer], []),
   'deleteSale' : IDL.Func([IDL.Nat], [], []),
+  'editSaleToday' : IDL.Func(
+      [IDL.Nat, PaymentMethod, IDL.Vec(SaleItem)],
+      [IDL.Bool],
+      [],
+    ),
+  'getActiveSales' : IDL.Func([], [IDL.Vec(Sale)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getCustomer' : IDL.Func([IDL.Text], [Customer], ['query']),
@@ -128,6 +149,16 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getSale' : IDL.Func([IDL.Nat], [IDL.Opt(Sale)], ['query']),
+  'getSaleEditLogsByEditor' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Vec(SaleEditLog)],
+      ['query'],
+    ),
+  'getSaleEditLogsBySale' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Vec(SaleEditLog)],
+      ['query'],
+    ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -188,16 +219,6 @@ export const idlFactory = ({ IDL }) => {
     'totalPurchasesCents' : IDL.Int,
     'phone' : IDL.Text,
   });
-  const UserProfile = IDL.Record({ 'name' : IDL.Text });
-  const Time = IDL.Int;
-  const CashRegisterSession = IDL.Record({
-    'id' : IDL.Nat,
-    'closeTime' : IDL.Opt(Time),
-    'isOpen' : IDL.Bool,
-    'finalBalanceCents' : IDL.Opt(IDL.Int),
-    'initialFloatCents' : IDL.Int,
-    'openTime' : Time,
-  });
   const PaymentMethod = IDL.Variant({
     'pix' : IDL.Null,
     'credito' : IDL.Null,
@@ -211,14 +232,38 @@ export const idlFactory = ({ IDL }) => {
     'quantity' : IDL.Nat,
     'priceCents' : IDL.Int,
   });
+  const SaleStatus = IDL.Variant({
+    'active' : IDL.Null,
+    'cancelled' : IDL.Null,
+  });
+  const Time = IDL.Int;
   const Sale = IDL.Record({
     'id' : IDL.Nat,
+    'status' : SaleStatus,
     'paymentMethod' : PaymentMethod,
     'date' : Time,
     'totalCents' : IDL.Int,
     'changeCents' : IDL.Int,
     'customerId' : IDL.Opt(IDL.Text),
     'items' : IDL.Vec(SaleItem),
+  });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const CashRegisterSession = IDL.Record({
+    'id' : IDL.Nat,
+    'closeTime' : IDL.Opt(Time),
+    'isOpen' : IDL.Bool,
+    'finalBalanceCents' : IDL.Opt(IDL.Int),
+    'initialFloatCents' : IDL.Int,
+    'openTime' : Time,
+  });
+  const SaleEditLog = IDL.Record({
+    'id' : IDL.Nat,
+    'action' : IDL.Variant({ 'edit' : IDL.Null, 'cancel' : IDL.Null }),
+    'saleId' : IDL.Nat,
+    'editor' : IDL.Principal,
+    'newValue' : Sale,
+    'previousValue' : Sale,
+    'timestamp' : Time,
   });
   const ClosingRecord = IDL.Record({
     'id' : IDL.Nat,
@@ -262,9 +307,16 @@ export const idlFactory = ({ IDL }) => {
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'cancelSaleToday' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'closeRegister' : IDL.Func([CloseRegisterRequest], [], []),
     'createCustomer' : IDL.Func([CreateCustomerRequest], [Customer], []),
     'deleteSale' : IDL.Func([IDL.Nat], [], []),
+    'editSaleToday' : IDL.Func(
+        [IDL.Nat, PaymentMethod, IDL.Vec(SaleItem)],
+        [IDL.Bool],
+        [],
+      ),
+    'getActiveSales' : IDL.Func([], [IDL.Vec(Sale)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getCustomer' : IDL.Func([IDL.Text], [Customer], ['query']),
@@ -274,6 +326,16 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getSale' : IDL.Func([IDL.Nat], [IDL.Opt(Sale)], ['query']),
+    'getSaleEditLogsByEditor' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(SaleEditLog)],
+        ['query'],
+      ),
+    'getSaleEditLogsBySale' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Vec(SaleEditLog)],
+        ['query'],
+      ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],

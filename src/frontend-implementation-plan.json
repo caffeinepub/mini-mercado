@@ -1,111 +1,128 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add cash payment option with change calculation",
+  "title": "Implement sale cancellation and editing with audit logging (Frontend)",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Update frontend payment method types and mappers to support 'cash' payment method",
-      "acceptanceCriteria": [
-        "Frontend PaymentMethod type includes 'cash' option",
-        "Mappers correctly convert between frontend 'cash' and backend 'dinheiro'",
-        "Portuguese label 'Dinheiro' displays in the UI"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/pos/payment.ts",
-          "operation": "modify",
-          "description": "Add 'cash' to the PaymentMethod type definition and ensure it maps to 'dinheiro' label in Portuguese"
-        },
-        {
-          "path": "frontend/src/backend/mappers.ts",
-          "operation": "modify",
-          "description": "Update toBackendPaymentMethod and fromBackendPaymentMethod functions to handle 'cash' to 'dinheiro' conversion between frontend and backend types"
-        },
-        {
-          "path": "frontend/src/i18n/ptBR.ts",
-          "operation": "modify",
-          "description": "Add 'Dinheiro' label to payment method translations for the cash payment option"
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Add cash payment button to CheckoutPanel alongside existing payment method buttons",
-      "acceptanceCriteria": [
-        "Cash payment button appears in checkout panel",
-        "Button is visually consistent with other payment method buttons",
-        "Selecting cash enables the change calculation flow"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/pos/CheckoutPanel.tsx",
-          "operation": "modify",
-          "description": "Add a fourth payment method button for 'Dinheiro' (cash) alongside PIX, Debit, and Credit buttons; ensure it triggers the change calculation UI when selected"
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Implement change calculation interface when cash payment is selected",
-      "acceptanceCriteria": [
-        "Input field accepts the cash amount tendered by customer",
-        "Change amount is calculated as (tendered amount - cart total)",
-        "Change is displayed in BRL currency format",
-        "Validation prevents completing sale if tendered amount is less than total",
-        "Change calculation updates in real-time as user types"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/pos/CheckoutPanel.tsx",
-          "operation": "modify",
-          "description": "Add conditional UI that appears when cash payment is selected, including an input field for amount tendered, real-time change calculation display in BRL format, and validation that disables the complete sale button when tendered amount is insufficient"
-        },
-        {
-          "path": "frontend/src/features/pos/payment.ts",
-          "operation": "modify",
-          "description": "Add utility functions for cash payment validation and change calculation (tendered amount minus total)"
-        }
-      ]
-    },
-    {
       "id": "REQ-5",
-      "summary": "Update cash register reporting to include cash payment method in breakdown calculations",
+      "summary": "Add 'Cancel Sale' button to sales history with confirmation dialog",
       "acceptanceCriteria": [
-        "Cash register close panel displays cash payment totals separately",
-        "Cash closing history shows cash payment amounts",
-        "Payment method breakdown calculations include cash transactions"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cashregister/reporting.ts",
-          "operation": "modify",
-          "description": "Update calculatePaymentMethodBreakdown function to include cash payment calculations alongside credit, debit, and PIX"
-        },
-        {
-          "path": "frontend/src/features/cashregister/CashClosePanel.tsx",
-          "operation": "modify",
-          "description": "Add display row for cash payment totals in the payment method breakdown section"
-        },
-        {
-          "path": "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
-          "operation": "modify",
-          "description": "Update closing records display to show cash payment amounts in the payment method breakdown"
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Update sales history display to show cash payment method",
-      "acceptanceCriteria": [
-        "Sales paid with cash display 'Dinheiro' as payment method",
-        "Sales history correctly shows all four payment methods"
+        "Cancel button appears on each active sale in sales history",
+        "Clicking cancel opens a confirmation dialog explaining stock will be restored",
+        "Successful cancellation updates the UI to show cancelled status",
+        "Cancelled sales display a visual indicator (badge or strikethrough)",
+        "Cancel button is hidden or disabled for already-cancelled sales"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/SalesHistoryPage.tsx",
           "operation": "modify",
-          "description": "Ensure sales records correctly display 'Dinheiro' label for cash payments alongside existing payment methods (PIX, Debit, Credit)"
+          "description": "Add Cancel Sale button to each sale record. The button should only appear for active sales (status === 'active'). When clicked, open a confirmation dialog that explains stock quantities will be restored. On confirmation, call the cancelSaleToday backend method with the sale ID, then refresh the sales list to show the updated status. Display cancelled sales with a visual indicator (badge showing 'CANCELLED' status and possibly strikethrough styling on the sale row)."
+        },
+        {
+          "path": "frontend/src/components/sales/SaleCancelDialog.tsx",
+          "operation": "create",
+          "description": "Create a confirmation dialog component for cancelling sales. The dialog should display a warning message explaining that cancelling will restore product stock quantities and exclude the sale from financial reports. Include 'Cancel Sale' and 'Keep Sale' action buttons. Use shadcn/ui Dialog, AlertDialog, or similar component from the build-template-react component for consistency. Handle loading state during the cancellation API call and show success/error feedback."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add a useCancelSale mutation hook that calls actor.cancelSaleToday(saleId). The mutation should invalidate the 'sales' query key on success to refresh the sales list. Include error handling with appropriate error messages. Return the mutation object with isLoading, error, and mutateAsync properties for use in the UI."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add 'Edit Sale' functionality to modify payment method and item quantities",
+      "acceptanceCriteria": [
+        "Edit button appears on each active sale in sales history",
+        "Clicking edit opens a dialog showing current payment method and item quantities",
+        "User can change payment method via dropdown",
+        "User can adjust quantities with number inputs or steppers",
+        "Dialog shows real-time total recalculation as quantities change",
+        "Edit is disabled for cancelled sales",
+        "Successful edit refreshes the sales list with updated values"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SalesHistoryPage.tsx",
+          "operation": "modify",
+          "description": "Add Edit Sale button to each active sale record (status === 'active'). When clicked, open the SaleEditDialog component passing the current sale data. Hide or disable the edit button for cancelled sales. After successful edit, refresh the sales list to show updated values."
+        },
+        {
+          "path": "frontend/src/components/sales/SaleEditDialog.tsx",
+          "operation": "create",
+          "description": "Create a dialog component for editing sales. Display the current payment method in a dropdown (PIX, Debit, Credit, Cash) and show each sale item with name, unit price, and a number input/stepper for quantity adjustment. Calculate and display the updated sale total in real-time as quantities change. Use the payment method constants from frontend/src/features/pos/payment.ts. Include Save and Cancel buttons. On save, call the useEditSale mutation hook with the new payment method and updated items array. Show loading state during save and display success/error feedback. Use shadcn/ui Dialog and Form components from build-template-react for consistency."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add a useEditSale mutation hook that calls actor.editSaleToday(saleId, newPaymentMethod, newItems). The mutation should accept saleId, newPaymentMethod (mapped using toBackendPaymentMethod from mappers), and newItems array (SaleItem[]). Invalidate the 'sales' query key on success to refresh the list. Include error handling for stock validation failures and other errors. Return mutation object with isLoading, error, and mutateAsync properties."
+        },
+        {
+          "path": "frontend/src/components/sales/SaleItemQuantityEditor.tsx",
+          "operation": "create",
+          "description": "Create a reusable component for editing a single sale item's quantity. Display the item name, unit price, current quantity, and provide increment/decrement buttons or a number input for adjusting quantity. Calculate and show the line total (quantity × price). Emit onChange events with the new quantity. Use shadcn/ui Input or Number Input components for consistency. Include validation to prevent negative or zero quantities."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Add filter controls to toggle between Active, Cancelled, and All sales views",
+      "acceptanceCriteria": [
+        "Filter tabs or dropdown allows selecting 'Active', 'Cancelled', or 'All'",
+        "Default view shows only active sales",
+        "Filtering updates the displayed sales list in real-time",
+        "Total calculations exclude cancelled sales when viewing active-only",
+        "Filter state persists during the session"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SalesHistoryPage.tsx",
+          "operation": "modify",
+          "description": "Add filter controls above the sales list using tabs or radio buttons for 'Active Sales', 'Cancelled Sales', and 'All Sales'. Default to 'Active Sales' on page load. Store the selected filter in component state. Filter the displayed sales array based on the selected status (sale.status === 'active', 'cancelled', or show all). Recalculate totals to exclude cancelled sales when viewing active-only or all. Persist the filter selection in sessionStorage using a key like 'salesHistoryFilter' so it survives page refreshes during the session. Use shadcn/ui Tabs component from build-template-react for consistent styling."
+        },
+        {
+          "path": "frontend/src/features/sales/SalesFilters.tsx",
+          "operation": "create",
+          "description": "Create a reusable filter component for sales status filtering. Display three options: 'Active Sales', 'Cancelled Sales', and 'All Sales' using tabs or radio buttons. Accept currentFilter and onFilterChange props. Emit the selected filter value ('active' | 'cancelled' | 'all') on change. Use shadcn/ui Tabs or RadioGroup components for consistency with the application design."
+        },
+        {
+          "path": "frontend/src/features/sales/salesUtils.ts",
+          "operation": "create",
+          "description": "Create utility functions for filtering sales by status. Implement filterSalesByStatus(sales: Sale[], filter: 'active' | 'cancelled' | 'all'): Sale[] that returns the filtered array. Implement calculateActiveSalesTotal(sales: Sale[]): number that sums totals only for active sales. These utilities will be used in SalesHistoryPage for filtering and in CashRegisterPage for session totals that exclude cancelled sales."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Exclude cancelled sales from financial reports and cash register totals",
+      "acceptanceCriteria": [
+        "Cash register closing calculations only include active sales",
+        "Payment method breakdowns exclude cancelled sales",
+        "Dashboard metrics filter out cancelled sales",
+        "Any revenue or sales count displays exclude cancelled transactions"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/CashRegisterPage.tsx",
+          "operation": "modify",
+          "description": "Update the cash register session calculations to filter out cancelled sales. When calculating session totals, payment method breakdowns, and closing amounts, only include sales where status === 'active'. Use the filterSalesByStatus utility from frontend/src/features/sales/salesUtils.ts to get active sales before passing them to reporting.ts functions. Ensure the CashClosePanel receives only active sales for its breakdown calculations."
+        },
+        {
+          "path": "frontend/src/features/cashregister/reporting.ts",
+          "operation": "modify",
+          "description": "Add documentation comments to clarify that calculatePaymentMethodBreakdown and filterSalesBySession functions expect pre-filtered active sales. Consider adding runtime checks or type guards to ensure cancelled sales are not included in calculations. The calling code (CashRegisterPage) is responsible for filtering, but these functions should be defensive."
+        },
+        {
+          "path": "frontend/src/pages/DashboardPage.tsx",
+          "operation": "modify",
+          "description": "If the dashboard displays any sales metrics, revenue totals, or sales counts, update those calculations to exclude cancelled sales. Filter the sales list by status === 'active' before computing any aggregate metrics. Use the filterSalesByStatus utility from frontend/src/features/sales/salesUtils.ts for consistent filtering across the application."
+        },
+        {
+          "path": "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
+          "operation": "modify",
+          "description": "Update the closing history display to show only active sales in the breakdown. When displaying payment method totals and sales counts for each closing record, filter out cancelled sales that belong to that session. Use the filterSalesByStatus utility before calculating breakdowns. Add a note or badge if any sales in the session were cancelled, showing '(X cancelled)' for transparency."
         }
       ]
     }

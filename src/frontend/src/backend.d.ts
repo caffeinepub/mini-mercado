@@ -21,14 +21,9 @@ export interface CreateCustomerRequest {
     name: string;
     phone: string;
 }
-export interface ClosingRecord {
-    id: bigint;
-    closeTime: Time;
-    sessionId: bigint;
-    finalBalanceCents: bigint;
-}
 export interface Sale {
     id: bigint;
+    status: SaleStatus;
     paymentMethod: PaymentMethod;
     date: Time;
     totalCents: bigint;
@@ -43,6 +38,12 @@ export interface Customer {
     totalPurchasesCents: bigint;
     phone: string;
 }
+export interface ClosingRecord {
+    id: bigint;
+    closeTime: Time;
+    sessionId: bigint;
+    finalBalanceCents: bigint;
+}
 export interface CashRegisterSession {
     id: bigint;
     closeTime?: Time;
@@ -50,6 +51,15 @@ export interface CashRegisterSession {
     finalBalanceCents?: bigint;
     initialFloatCents: bigint;
     openTime: Time;
+}
+export interface SaleEditLog {
+    id: bigint;
+    action: Variant_edit_cancel;
+    saleId: bigint;
+    editor: Principal;
+    newValue: Sale;
+    previousValue: Sale;
+    timestamp: Time;
 }
 export interface CloseRegisterRequest {
     sessionId: bigint;
@@ -71,21 +81,34 @@ export enum PaymentMethod {
     debito = "debito",
     dinheiro = "dinheiro"
 }
+export enum SaleStatus {
+    active = "active",
+    cancelled = "cancelled"
+}
 export enum UserRole {
     admin = "admin",
     user = "user",
     guest = "guest"
 }
+export enum Variant_edit_cancel {
+    edit = "edit",
+    cancel = "cancel"
+}
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    cancelSaleToday(saleId: bigint): Promise<boolean>;
     closeRegister(request: CloseRegisterRequest): Promise<void>;
     createCustomer(request: CreateCustomerRequest): Promise<Customer>;
     deleteSale(id: bigint): Promise<void>;
+    editSaleToday(saleId: bigint, newPaymentMethod: PaymentMethod, newItems: Array<SaleItem>): Promise<boolean>;
+    getActiveSales(): Promise<Array<Sale>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCustomer(id: string): Promise<Customer>;
     getOpenRegisterSession(): Promise<CashRegisterSession | null>;
     getSale(id: bigint): Promise<Sale | null>;
+    getSaleEditLogsByEditor(editor: Principal): Promise<Array<SaleEditLog>>;
+    getSaleEditLogsBySale(saleId: bigint): Promise<Array<SaleEditLog>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     listClosingRecords(): Promise<Array<ClosingRecord>>;

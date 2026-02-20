@@ -6,11 +6,12 @@ import Int "mo:core/Int";
 import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
 import Principal "mo:core/Principal";
+import List "mo:core/List";
+import Migration "migration";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
-import Migration "migration";
 
 (with migration = Migration.run)
 actor {
@@ -35,6 +36,43 @@ actor {
     eligibleForRaffle : Bool;
   };
 
+  type SaleItem = {
+    itemId : Text;
+    name : Text;
+    quantity : Nat;
+    priceCents : Int;
+    totalCents : Int;
+  };
+
+  public type SaleStatus = {
+    #active;
+    #cancelled;
+  };
+
+  type Sale = {
+    id : Nat;
+    customerId : ?Text;
+    items : [SaleItem];
+    paymentMethod : PaymentMethod;
+    totalCents : Int;
+    changeCents : Int;
+    date : Time.Time;
+    status : SaleStatus;
+  };
+
+  type SaleEditLog = {
+    id : Nat;
+    saleId : Nat;
+    editor : Principal;
+    action : {
+      #cancel;
+      #edit;
+    };
+    previousValue : Sale;
+    newValue : Sale;
+    timestamp : Time.Time;
+  };
+
   type CreateCustomerRequest = {
     id : Text;
     name : Text;
@@ -52,24 +90,6 @@ actor {
     name : Text;
     blob : Storage.ExternalBlob;
     priceCents : Int;
-  };
-
-  type SaleItem = {
-    itemId : Text;
-    name : Text;
-    quantity : Nat;
-    priceCents : Int;
-    totalCents : Int;
-  };
-
-  type Sale = {
-    id : Nat;
-    customerId : ?Text;
-    items : [SaleItem];
-    paymentMethod : PaymentMethod;
-    totalCents : Int;
-    changeCents : Int;
-    date : Time.Time;
   };
 
   type CashRegisterSession = {
@@ -97,14 +117,26 @@ actor {
     finalBalanceCents : Int;
   };
 
+  type CancelSaleLog = {
+    id : Nat;
+    saleId : Nat;
+    editor : Principal;
+    previousValue : Sale;
+    newValue : Sale;
+    timestamp : Time.Time;
+  };
+
   public type UserProfile = {
     name : Text;
   };
 
   var nextSaleId = 1;
+  var nextCancelSaleLogId = 1;
+  var nextSaleEditLogId = 1;
   var nextRegisterSessionId = 1;
   let customers = Map.empty<Text, Customer>();
   let sales = Map.empty<Nat, Sale>();
+  let saleEditLogs = Map.empty<Nat, SaleEditLog>();
   let items = Map.empty<Text, Item>();
   let registerSessions = Map.empty<Nat, CashRegisterSession>();
   let closings = Map.empty<Nat, ClosingRecord>();
@@ -259,6 +291,7 @@ actor {
       totalCents;
       changeCents = 0;
       date = Time.now();
+      status = #active;
     };
 
     sales.add(nextSaleId, sale);
@@ -296,6 +329,130 @@ actor {
         sales.remove(id);
       };
     };
+  };
+
+  public query ({ caller }) func getSaleEditLogsBySale(saleId : Nat) : async [SaleEditLog] {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can view audit logs");
+    };
+    let logsList = List.empty<SaleEditLog>();
+    for ((_, log) in saleEditLogs.entries()) {
+      if (log.saleId == saleId) {
+        logsList.add(log);
+      };
+    };
+    logsList.toArray();
+  };
+
+  public query ({ caller }) func getSaleEditLogsByEditor(editor : Principal) : async [SaleEditLog] {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can view audit logs");
+    };
+    let logsList = List.empty<SaleEditLog>();
+    for ((_, log) in saleEditLogs.entries()) {
+      if (log.editor == editor) {
+        logsList.add(log);
+      };
+    };
+    logsList.toArray();
+  };
+
+  public shared ({ caller }) func cancelSaleToday(saleId : Nat) : async Bool {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can cancel sales");
+    };
+
+    let originalSale = switch (sales.get(saleId)) {
+      case (null) { Runtime.trap("Sale not found") };
+      case (?orig) { orig };
+    };
+
+    if (originalSale.status == #cancelled) {
+      return false;
+    };
+
+    let now = Time.now();
+    let saleDate = originalSale.date;
+    let oneDayNanos : Int = 24 * 60 * 60 * 1_000_000_000;
+    let dayDelta = (now - saleDate + oneDayNanos - 1) / oneDayNanos;
+
+    if (dayDelta != 0) {
+      Runtime.trap("Cannot cancel sale from previous day");
+    };
+
+    let cancelledSale = { originalSale with status = #cancelled };
+    sales.add(saleId, cancelledSale);
+
+    let log : SaleEditLog = {
+      id = nextSaleEditLogId;
+      saleId;
+      editor = caller;
+      action = #cancel;
+      previousValue = originalSale;
+      newValue = cancelledSale;
+      timestamp = now;
+    };
+    saleEditLogs.add(nextSaleEditLogId, log);
+    nextSaleEditLogId += 1;
+
+    true;
+  };
+
+  public shared ({ caller }) func editSaleToday(saleId : Nat, newPaymentMethod : PaymentMethod, newItems : [SaleItem]) : async Bool {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can edit sales");
+    };
+
+    let originalSale = switch (sales.get(saleId)) {
+      case (null) { Runtime.trap("Sale not found") };
+      case (?sale) { sale };
+    };
+
+    if (originalSale.status == #cancelled) {
+      return false;
+    };
+
+    let now = Time.now();
+    let saleDate = originalSale.date;
+    let oneDayNanos : Int = 24 * 60 * 60 * 1_000_000_000;
+    let dayDelta = (now - saleDate + oneDayNanos - 1) / oneDayNanos;
+
+    if (dayDelta != 0) {
+      Runtime.trap("Cannot edit sale from previous day");
+    };
+
+    var newTotal = 0;
+    for (item in newItems.values()) {
+      newTotal += item.totalCents.toNat();
+    };
+    if (newTotal <= 0) {
+      Runtime.trap("Sale total must be positive");
+    };
+
+    let editedSale = {
+      originalSale with
+      paymentMethod = newPaymentMethod;
+      items = newItems;
+      totalCents = newTotal;
+      changeCents = 0;
+      status = #active;
+    };
+
+    sales.add(saleId, editedSale);
+
+    let log : SaleEditLog = {
+      id = nextSaleEditLogId;
+      saleId;
+      editor = caller;
+      action = #edit;
+      previousValue = originalSale;
+      newValue = editedSale;
+      timestamp = now;
+    };
+    saleEditLogs.add(nextSaleEditLogId, log);
+    nextSaleEditLogId += 1;
+
+    true;
   };
 
   public shared ({ caller }) func openRegister(request : OpenRegisterRequest) : async CashRegisterSession {
@@ -380,6 +537,13 @@ actor {
     registerSessions.values().find(func(session : CashRegisterSession) : Bool {
       session.isOpen;
     });
+  };
+
+  public query ({ caller }) func getActiveSales() : async [Sale] {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can view sales");
+    };
+    sales.values().toArray().filter(func(sale) { sale.status == #active });
   };
 
   func validatePriceRange(amountCents : Int) : ValidatedPriceRange {

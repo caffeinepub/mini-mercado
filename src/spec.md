@@ -1,14 +1,15 @@
 # Specification
 
 ## Summary
-**Goal:** Add cash payment option with automatic change calculation to the checkout flow.
+**Goal:** Enable users to cancel and edit completed sales with automatic stock restoration and audit tracking.
 
 **Planned changes:**
-- Add 'dinheiro' (cash) as a fourth payment method in backend alongside pix, debito, and credito
-- Update frontend to support 'cash' payment method with Portuguese label 'Dinheiro'
-- Add cash payment button to CheckoutPanel
-- Implement change calculation interface that shows when cash is selected, with input for amount tendered and automatic change calculation
-- Update cash register reporting to include cash payment totals in breakdown
-- Update sales history to display cash payment method
+- Add sale status tracking (active/cancelled) to backend
+- Implement sale cancellation that restores product stock
+- Allow editing payment method and item quantities with proportional stock adjustments
+- Create audit log system to track all sale modifications
+- Add Cancel and Edit buttons to sales history UI
+- Implement filters to view active, cancelled, or all sales separately
+- Exclude cancelled sales from financial reports and totals
 
-**User-visible outcome:** Users can select cash as a payment method during checkout, enter the amount tendered, see the calculated change due, and view cash payments in sales history and cash register reports.
+**User-visible outcome:** Users can cancel mistaken sales (restoring stock automatically), edit payment methods and quantities on existing sales, and filter the sales history to view active or cancelled transactions separately. All changes are tracked in an audit log.

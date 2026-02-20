@@ -1,32 +1,86 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-19T03:21:04.704Z",
-  "summary": "The diff successfully implements all requested requirements for adding cash payment with change calculation. Backend adds 'dinheiro' variant, frontend adds 'Cash' type with proper mapping, CheckoutPanel includes cash button with change calculation UI, reporting includes cash breakdown, and sales history displays cash payments. A migration module handles backward compatibility for existing sales data.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-20T19:33:18.648Z",
+  "summary": "The implementation covers most requirements but has several gaps. Key missing features: backend stock adjustment on cancellation/edit (REQ-2, REQ-3), audit log creation on modifications (REQ-4), and the dialog confirmation explaining stock restoration (REQ-5). The dialog mentions 'restore stock' in Portuguese, but the backend cancelSale method implementation is not visible in the diff to confirm actual stock restoration. Additionally, REQ-4's audit log query method and storage association are not evident in the truncated backend/main.mo.",
+  "missing_requirements": [
     {
-      "description": "Migration module (backend/migration.mo) for converting old sales data to new payment method structure",
-      "reason": "The BuildRequest explicitly states as a constraint to 'Maintain compatibility with existing sales data', but does not request a migration module. The migration.mo file implements a data migration system that was not specified in any requirement.",
+      "id": "REQ-2",
+      "requirement": "For each item in the cancelled sale, product stock is increased by the quantity sold",
+      "reason": "The backend/main.mo file is truncated before showing the cancelSale method implementation. No evidence of stock adjustment logic is visible in the diff.",
       "evidence": [
-        "backend/migration.mo"
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "For each item quantity change, calculate difference and adjust product stock accordingly",
+      "reason": "The backend/main.mo is truncated and does not show an editSale method implementation with stock adjustment logic.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Backend method exists to query audit logs for a specific sale",
+      "reason": "No query method for audit logs (e.g., getAuditLogsForSale) is visible in the truncated backend/main.mo.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Every cancellation creates an audit entry with previous status and items",
+      "reason": "The cancelSale method implementation is not shown in the diff, so audit log creation on cancellation cannot be verified.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Every edit creates an audit entry showing payment method changes and quantity deltas",
+      "reason": "No editSale method implementation visible in diff to confirm audit log creation on edit.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Clicking cancel opens a confirmation dialog explaining stock will be restored",
+      "reason": "SaleCancelDialog.tsx mentions 'Manter o registro para auditoria' (keep record for audit) but does not explicitly mention 'stock will be restored' in the dialog description.",
+      "evidence": [
+        "frontend/src/components/sales/SaleCancelDialog.tsx"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Successful edit refreshes the sales list with updated values",
+      "reason": "SaleEditDialog.tsx calls onSave prop, but the diff does not show SalesHistoryPage refetching or invalidating queries after edit mutation success.",
+      "evidence": [
+        "frontend/src/pages/SalesHistoryPage.tsx",
+        "frontend/src/components/sales/SaleEditDialog.tsx"
       ]
     }
   ],
-  "confidence": 0.95,
+  "hallucinated_features": [],
+  "confidence": 0.65,
   "changed_files": [
     "backend/main.mo",
     "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/src/backend/mappers.ts",
+    "frontend/src/components/sales/SaleCancelDialog.tsx",
+    "frontend/src/components/sales/SaleEditDialog.tsx",
+    "frontend/src/components/sales/SaleItemQuantityEditor.tsx",
     "frontend/src/features/cashregister/CashClosePanel.tsx",
     "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
     "frontend/src/features/cashregister/reporting.ts",
-    "frontend/src/features/pos/CheckoutPanel.tsx",
-    "frontend/src/features/pos/payment.ts",
-    "frontend/src/i18n/ptBR.ts",
+    "frontend/src/features/sales/SalesFilters.tsx",
+    "frontend/src/features/sales/salesUtils.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/CashRegisterPage.tsx",
+    "frontend/src/pages/SalesHistoryPage.tsx",
     "frontend/src/types/domain.ts",
-    "frontend/src/utils/money.ts",
     "project_state.json"
   ]
 }

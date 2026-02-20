@@ -1,112 +1,184 @@
 {
   "kind": "build_request",
-  "title": "Add cash payment option with change calculation",
+  "title": "Implement sale cancellation and editing with audit logging",
   "projectName": "Mini Market Manager",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add 'dinheiro' (cash) as a fourth payment method option in the backend PaymentMethod variant, alongside the existing pix, debito, and credito options",
+      "text": "Add a 'status' field to Sale records in the backend to track 'active' or 'cancelled' states, defaulting to 'active' for all new sales",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-user-prompt"
+        ],
+        "quotes": [
+          "O status da venda deve mudar para \"Cancelada\""
         ]
       },
       "acceptanceCriteria": [
-        "Backend PaymentMethod type includes a 'dinheiro' variant",
-        "Cash payment method can be used when recording sales"
+        "Sale type includes a status field with 'active' or 'cancelled' variants",
+        "All existing sales are treated as 'active' by default",
+        "New sales are created with 'active' status"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update frontend payment method types and mappers to support 'cash' as a payment method, mapping it to/from the backend 'dinheiro' variant",
-      "target": "frontend",
+      "text": "Create a backend method to cancel a sale by ID that changes status to 'cancelled', restores product stock quantities, and returns success confirmation",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-user-prompt"
+        ],
+        "quotes": [
+          "Estorno de Estoque: Os produtos daquela venda devem retornar automaticamente para a quantidade disponível no estoque"
         ]
       },
       "acceptanceCriteria": [
-        "Frontend PaymentMethod type includes 'cash' option",
-        "Mappers correctly convert between frontend 'cash' and backend 'dinheiro'",
-        "Portuguese label 'Dinheiro' displays in the UI"
+        "Method accepts a sale ID and validates it exists",
+        "Sale status is updated to 'cancelled'",
+        "For each item in the cancelled sale, product stock is increased by the quantity sold",
+        "Method returns error if sale is already cancelled",
+        "Stock updates are atomic with status change"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add cash payment option button to CheckoutPanel alongside PIX, Debit, and Credit payment method buttons",
-      "target": "frontend",
+      "text": "Create a backend method to edit a sale's payment method and item quantities, recalculating totals and adjusting stock proportionally based on quantity changes",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-user-prompt"
+        ],
+        "quotes": [
+          "Permita editar o \"Método de Pagamento\" e a \"Quantidade\" de uma venda já realizada",
+          "Se a quantidade for alterada, o sistema deve calcular a diferença e atualizar o estoque proporcionalmente"
         ]
       },
       "acceptanceCriteria": [
-        "Cash payment button appears in checkout panel",
-        "Button is visually consistent with other payment method buttons",
-        "Selecting cash enables the change calculation flow"
+        "Method accepts sale ID, new payment method, and array of updated item quantities",
+        "For each item quantity change, calculate difference and adjust product stock accordingly",
+        "Increase stock if quantity decreased, decrease stock if quantity increased",
+        "Recalculate sale total based on new quantities",
+        "Method returns error if new quantities would exceed available stock",
+        "Only active sales can be edited"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Implement change calculation interface that appears when cash payment is selected, with an input field for the amount tendered and automatic calculation and display of change due",
-      "target": "frontend",
+      "text": "Create an audit log system in the backend that records all sale modifications with timestamp, action type ('cancel' or 'edit'), previous values, new values, and editor identifier",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-user-prompt"
         ],
         "quotes": [
-          "com o cálculo de troco quando a pessoa for pagar em dinheiro"
+          "Crie uma tabela invisível que registre: \"Quem editou\", \"O que era antes\" e \"O que ficou agora\""
         ]
       },
       "acceptanceCriteria": [
-        "Input field accepts the cash amount tendered by customer",
-        "Change amount is calculated as (tendered amount - cart total)",
-        "Change is displayed in BRL currency format",
-        "Validation prevents completing sale if tendered amount is less than total",
-        "Change calculation updates in real-time as user types"
+        "AuditLog type includes saleId, timestamp, action ('cancel' or 'edit'), previousState, newState, and editorPrincipal",
+        "Every cancellation creates an audit entry with previous status and items",
+        "Every edit creates an audit entry showing payment method changes and quantity deltas",
+        "Audit logs are stored persistently and associated with sale records",
+        "Backend method exists to query audit logs for a specific sale"
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Update cash register reporting to include cash payment method in the breakdown calculations alongside PIX, debit, and credit",
+      "text": "Add 'Cancel Sale' button to each sale record in the sales history UI that triggers cancellation with confirmation dialog",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-user-prompt"
+        ],
+        "quotes": [
+          "Adicione um botão \"Cancelar Venda\" no histórico"
         ]
       },
       "acceptanceCriteria": [
-        "Cash register close panel displays cash payment totals separately",
-        "Cash closing history shows cash payment amounts",
-        "Payment method breakdown calculations include cash transactions"
+        "Cancel button appears on each active sale in sales history",
+        "Clicking cancel opens a confirmation dialog explaining stock will be restored",
+        "Successful cancellation updates the UI to show cancelled status",
+        "Cancelled sales display a visual indicator (badge or strikethrough)",
+        "Cancel button is hidden or disabled for already-cancelled sales"
       ]
     },
     {
       "id": "REQ-6",
-      "text": "Update sales history display to show cash payment method and preserve the display for historical sales with other payment methods",
+      "text": "Add 'Edit Sale' functionality to sales history that allows modifying payment method and item quantities through a dialog interface",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-user-prompt"
+        ],
+        "quotes": [
+          "Permita editar o \"Método de Pagamento\" e a \"Quantidade\" de uma venda já realizada"
         ]
       },
       "acceptanceCriteria": [
-        "Sales paid with cash display 'Dinheiro' as payment method",
-        "Sales history correctly shows all four payment methods"
+        "Edit button appears on each active sale in sales history",
+        "Clicking edit opens a dialog showing current payment method and item quantities",
+        "User can change payment method via dropdown",
+        "User can adjust quantities with number inputs or steppers",
+        "Dialog shows real-time total recalculation as quantities change",
+        "Edit is disabled for cancelled sales",
+        "Successful edit refreshes the sales list with updated values"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Add filter controls to sales history page to toggle between 'Active Sales', 'Cancelled Sales', and 'All Sales' views",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-prompt"
+        ],
+        "quotes": [
+          "Adicione filtros no relatório para exibir \"Vendas Ativas\" e \"Vendas Canceladas\" separadamente"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Filter tabs or dropdown allows selecting 'Active', 'Cancelled', or 'All'",
+        "Default view shows only active sales",
+        "Filtering updates the displayed sales list in real-time",
+        "Total calculations exclude cancelled sales when viewing active-only",
+        "Filter state persists during the session"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Exclude cancelled sales from daily financial reports and cash register session totals",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-user-prompt"
+        ],
+        "quotes": [
+          "O valor da venda deve ser subtraído do total do relatório diário",
+          "para não misturar no cálculo de lucro"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Cash register closing calculations only include active sales",
+        "Payment method breakdowns exclude cancelled sales",
+        "Dashboard metrics filter out cancelled sales",
+        "Any revenue or sales count displays exclude cancelled transactions"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the existing payment methods (pix, debito, credito)",
-    "Maintain compatibility with existing sales data",
-    "Use Portuguese language labels for payment methods in the UI"
+    "Maintain single-actor architecture with all logic in backend/main.mo",
+    "Preserve existing PaymentMethod variants (pix, debito, credito, dinheiro)",
+    "Do not modify read-only frontend paths: useInternetIdentity, useActor, main.tsx, components/ui",
+    "Ensure stock adjustments are atomic with status changes to prevent data inconsistency"
   ],
   "nonGoals": [
-    "Modifying the raffle eligibility calculation logic",
-    "Changing the cash register opening/closing flow",
-    "Adding other payment methods beyond cash"
+    "Multi-user role permissions beyond existing admin token system",
+    "Partial sale cancellations (cancel specific items only)",
+    "Displaying audit logs in the UI",
+    "Reverting cancelled sales back to active",
+    "Time-limited edit windows"
   ],
   "imageRequirements": {
     "required": [],

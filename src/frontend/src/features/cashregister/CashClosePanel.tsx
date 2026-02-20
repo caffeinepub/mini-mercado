@@ -4,14 +4,14 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DollarSign, AlertCircle, Loader2 } from 'lucide-react';
 import type { CashSession, Sale } from '../../types/domain';
-import { calculatePaymentBreakdown } from './reporting';
+import { calculatePaymentMethodBreakdown } from './reporting';
 import { formatCurrency } from '../../utils/money';
 import { ptBR, formatDateTimePtBR } from '../../i18n/ptBR';
 
 interface CashClosePanelProps {
   session?: CashSession;
   sales: Sale[];
-  onClose: () => void;
+  onClose: (finalBalance: number) => void;
   isClosing?: boolean;
 }
 
@@ -29,8 +29,13 @@ export function CashClosePanel({ session, sales, onClose, isClosing }: CashClose
 
   // Filter sales for this session
   const sessionSales = sales.filter(sale => sale.timestamp >= session.openedAt);
-  const breakdown = calculatePaymentBreakdown(sessionSales);
-  const grandTotal = session.initialFloat + breakdown.total;
+  const breakdown = calculatePaymentMethodBreakdown(sessionSales);
+  const salesTotal = breakdown.pix + breakdown.debit + breakdown.credit + breakdown.cash;
+  const grandTotal = session.initialFloat + salesTotal;
+
+  const handleClose = () => {
+    onClose(grandTotal);
+  };
 
   return (
     <Card>
@@ -49,7 +54,7 @@ export function CashClosePanel({ session, sales, onClose, isClosing }: CashClose
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">{ptBR.salesTotal}:</span>
-              <span className="font-medium">{formatCurrency(breakdown.total)}</span>
+              <span className="font-medium">{formatCurrency(salesTotal)}</span>
             </div>
             <Separator />
             <div className="flex justify-between text-lg font-bold">
@@ -82,7 +87,7 @@ export function CashClosePanel({ session, sales, onClose, isClosing }: CashClose
             </div>
           </div>
 
-          <Button onClick={onClose} variant="destructive" size="lg" className="w-full" disabled={isClosing}>
+          <Button onClick={handleClose} variant="destructive" size="lg" className="w-full" disabled={isClosing}>
             {isClosing ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -1,84 +1,105 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-19T03:21:04.707Z",
+  "generatedAt": "2026-02-20T19:33:18.651Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 6,
+    "total": 8,
     "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add 'dinheiro' (cash) as a fourth payment method option in the backend PaymentMethod variant, alongside the existing pix, debito, and credito options",
+        "summary": "Add a 'status' field to Sale records in the backend to track 'active' or 'cancelled' states, defaulting to 'active' for all new sales",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Update frontend payment method types and mappers to support 'cash' as a payment method, mapping it to/from the backend 'dinheiro' variant",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/pos/payment.ts",
-          "frontend/src/backend/mappers.ts",
-          "frontend/src/i18n/ptBR.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/pos/payment.ts",
-          "frontend/src/backend/mappers.ts",
-          "frontend/src/i18n/ptBR.ts"
-        ]
+        "summary": "Create a backend method to cancel a sale by ID that changes status to 'cancelled', restores product stock quantities, and returns success confirmation",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-3",
-        "summary": "Add cash payment option button to CheckoutPanel alongside PIX, Debit, and Credit payment method buttons",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/pos/CheckoutPanel.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/pos/CheckoutPanel.tsx"
-        ]
+        "summary": "Create a backend method to edit a sale's payment method and item quantities, recalculating totals and adjusting stock proportionally based on quantity changes",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-4",
-        "summary": "Implement change calculation interface that appears when cash payment is selected, with an input field for the amount tendered and automatic calculation and display of change due",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/pos/CheckoutPanel.tsx",
-          "frontend/src/features/pos/payment.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/pos/CheckoutPanel.tsx",
-          "frontend/src/features/pos/payment.ts"
-        ]
+        "summary": "Create an audit log system in the backend that records all sale modifications with timestamp, action type ('cancel' or 'edit'), previous values, new values, and editor identifier",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-5",
-        "summary": "Update cash register reporting to include cash payment method in the breakdown calculations alongside PIX, debit, and credit",
+        "summary": "Add 'Cancel Sale' button to each sale record in the sales history UI that triggers cancellation with confirmation dialog",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cashregister/reporting.ts",
-          "frontend/src/features/cashregister/CashClosePanel.tsx",
-          "frontend/src/features/cashregister/ClosingsHistoryList.tsx"
+          "frontend/src/pages/SalesHistoryPage.tsx",
+          "frontend/src/components/sales/SaleCancelDialog.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/features/cashregister/reporting.ts",
-          "frontend/src/features/cashregister/CashClosePanel.tsx",
-          "frontend/src/features/cashregister/ClosingsHistoryList.tsx"
+          "frontend/src/pages/SalesHistoryPage.tsx",
+          "frontend/src/components/sales/SaleCancelDialog.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ]
       },
       {
         "id": "REQ-6",
-        "summary": "Update sales history display to show cash payment method and preserve the display for historical sales with other payment methods",
-        "status": "missing",
+        "summary": "Add 'Edit Sale' functionality to sales history that allows modifying payment method and item quantities through a dialog interface",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/SalesHistoryPage.tsx"
+          "frontend/src/pages/SalesHistoryPage.tsx",
+          "frontend/src/components/sales/SaleEditDialog.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/sales/SaleItemQuantityEditor.tsx"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/pages/SalesHistoryPage.tsx",
+          "frontend/src/components/sales/SaleEditDialog.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/sales/SaleItemQuantityEditor.tsx"
+        ]
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Add filter controls to sales history page to toggle between 'Active Sales', 'Cancelled Sales', and 'All Sales' views",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/SalesHistoryPage.tsx",
+          "frontend/src/features/sales/SalesFilters.tsx",
+          "frontend/src/features/sales/salesUtils.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/SalesHistoryPage.tsx",
+          "frontend/src/features/sales/SalesFilters.tsx",
+          "frontend/src/features/sales/salesUtils.ts"
+        ]
+      },
+      {
+        "id": "REQ-8",
+        "summary": "Exclude cancelled sales from daily financial reports and cash register session totals",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/CashRegisterPage.tsx",
+          "frontend/src/features/cashregister/reporting.ts",
+          "frontend/src/pages/DashboardPage.tsx",
+          "frontend/src/features/cashregister/ClosingsHistoryList.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/CashRegisterPage.tsx",
+          "frontend/src/features/cashregister/reporting.ts",
+          "frontend/src/features/cashregister/ClosingsHistoryList.tsx"
+        ]
       }
     ]
   },
@@ -92,16 +113,20 @@
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
     "frontend/src/backend/mappers.ts",
+    "frontend/src/components/sales/SaleCancelDialog.tsx",
+    "frontend/src/components/sales/SaleEditDialog.tsx",
+    "frontend/src/components/sales/SaleItemQuantityEditor.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
     "frontend/src/features/cashregister/CashClosePanel.tsx",
     "frontend/src/features/cashregister/ClosingsHistoryList.tsx",
     "frontend/src/features/cashregister/reporting.ts",
-    "frontend/src/features/pos/CheckoutPanel.tsx",
-    "frontend/src/features/pos/payment.ts",
-    "frontend/src/i18n/ptBR.ts",
+    "frontend/src/features/sales/SalesFilters.tsx",
+    "frontend/src/features/sales/salesUtils.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/CashRegisterPage.tsx",
+    "frontend/src/pages/SalesHistoryPage.tsx",
     "frontend/src/types/domain.ts",
-    "frontend/src/utils/money.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

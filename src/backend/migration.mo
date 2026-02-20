@@ -1,51 +1,18 @@
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
 import Time "mo:core/Time";
-import Int "mo:core/Int";
-import Storage "blob-storage/Storage";
-import Principal "mo:core/Principal";
-import AccessControl "authorization/access-control";
 
 module {
-  // Old type constants
-  type ValidatedPriceRange = {
-    #aboveZero;
-    #zeroValue;
-    #negative;
-  };
-
-  type OldPaymentMethod = {
+  public type PaymentMethod = {
     #pix;
     #debito;
     #credito;
+    #dinheiro;
   };
 
-  // Old backend types
-  type Customer = {
-    id : Text;
-    name : Text;
-    phone : Text;
-    totalPurchasesCents : Int;
-    eligibleForRaffle : Bool;
-  };
-
-  type CreateCustomerRequest = {
-    id : Text;
-    name : Text;
-    phone : Text;
-  };
-
-  type UpdateCustomerRequest = {
-    id : Text;
-    name : Text;
-    phone : Text;
-  };
-
-  type Item = {
-    id : Text;
-    name : Text;
-    blob : Storage.ExternalBlob;
-    priceCents : Int;
+  public type SaleStatus = {
+    #active;
+    #cancelled;
   };
 
   type SaleItem = {
@@ -56,112 +23,47 @@ module {
     totalCents : Int;
   };
 
-  type Sale = {
+  // Old Sale record (without status)
+  type OldSale = {
     id : Nat;
     customerId : ?Text;
     items : [SaleItem];
-    paymentMethod : OldPaymentMethod;
+    paymentMethod : PaymentMethod;
     totalCents : Int;
     changeCents : Int;
     date : Time.Time;
   };
 
-  type CashRegisterSession = {
-    id : Nat;
-    initialFloatCents : Int;
-    openTime : Time.Time;
-    closeTime : ?Time.Time;
-    finalBalanceCents : ?Int;
-    isOpen : Bool;
-  };
-
-  type ClosingRecord = {
-    id : Nat;
-    sessionId : Nat;
-    closeTime : Time.Time;
-    finalBalanceCents : Int;
-  };
-
-  type OpenRegisterRequest = {
-    initialFloatCents : Int;
-  };
-
-  type CloseRegisterRequest = {
-    sessionId : Nat;
-    finalBalanceCents : Int;
-  };
-
-  type UserProfile = {
-    name : Text;
-  };
-
-  type OldState = {
-    floatCurrencyDecimals : Int;
-    raffleThresholdCents : Int;
-    nextSaleId : Nat;
-    nextRegisterSessionId : Nat;
-    customers : Map.Map<Text, Customer>;
-    sales : Map.Map<Nat, Sale>;
-    items : Map.Map<Text, Item>;
-    registerSessions : Map.Map<Nat, CashRegisterSession>;
-    closings : Map.Map<Nat, ClosingRecord>;
-    accessControlState : AccessControl.AccessControlState;
-    userProfiles : Map.Map<Principal, UserProfile>;
-  };
-
-  type NewPaymentMethod = {
-    #pix;
-    #debito;
-    #credito;
-    #dinheiro;
-  };
-
+  // New Sale record (with status)
   type NewSale = {
     id : Nat;
     customerId : ?Text;
     items : [SaleItem];
-    paymentMethod : NewPaymentMethod;
+    paymentMethod : PaymentMethod;
     totalCents : Int;
     changeCents : Int;
     date : Time.Time;
+    status : SaleStatus;
   };
 
-  type NewState = {
+  // Old actor with sales map
+  type OldActor = {
     nextSaleId : Nat;
-    nextRegisterSessionId : Nat;
-    customers : Map.Map<Text, Customer>;
-    sales : Map.Map<Nat, NewSale>;
-    items : Map.Map<Text, Item>;
-    registerSessions : Map.Map<Nat, CashRegisterSession>;
-    closings : Map.Map<Nat, ClosingRecord>;
-    accessControlState : AccessControl.AccessControlState;
-    userProfiles : Map.Map<Principal, UserProfile>;
+    sales : Map.Map<Nat, OldSale>;
   };
 
-  public func run(old : OldState) : NewState {
-    let newSales = old.sales.map<Nat, Sale, NewSale>(
+  // New actor with sales map using NewSale type
+  type NewActor = {
+    nextSaleId : Nat;
+    sales : Map.Map<Nat, NewSale>;
+  };
+
+  public func run(old : OldActor) : NewActor {
+    let newSales = old.sales.map<Nat, OldSale, NewSale>(
       func(_id, oldSale) {
-        { oldSale with paymentMethod = convertPaymentMethod(oldSale.paymentMethod) };
+        { oldSale with status = #active };
       }
     );
-    {
-      nextSaleId = old.nextSaleId;
-      nextRegisterSessionId = old.nextRegisterSessionId;
-      customers = old.customers;
-      sales = newSales;
-      items = old.items;
-      registerSessions = old.registerSessions;
-      closings = old.closings;
-      accessControlState = old.accessControlState;
-      userProfiles = old.userProfiles;
-    };
-  };
-
-  func convertPaymentMethod(oldMethod : OldPaymentMethod) : NewPaymentMethod {
-    switch (oldMethod) {
-      case (#pix) { #pix };
-      case (#debito) { #debito };
-      case (#credito) { #credito };
-    };
+    { old with sales = newSales };
   };
 };

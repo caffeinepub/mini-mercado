@@ -47,12 +47,23 @@ export type PaymentMethod = { 'pix' : null } |
   { 'dinheiro' : null };
 export interface Sale {
   'id' : bigint,
+  'status' : SaleStatus,
   'paymentMethod' : PaymentMethod,
   'date' : Time,
   'totalCents' : bigint,
   'changeCents' : bigint,
   'customerId' : [] | [string],
   'items' : Array<SaleItem>,
+}
+export interface SaleEditLog {
+  'id' : bigint,
+  'action' : { 'edit' : null } |
+    { 'cancel' : null },
+  'saleId' : bigint,
+  'editor' : Principal,
+  'newValue' : Sale,
+  'previousValue' : Sale,
+  'timestamp' : Time,
 }
 export interface SaleItem {
   'itemId' : string,
@@ -61,6 +72,8 @@ export interface SaleItem {
   'quantity' : bigint,
   'priceCents' : bigint,
 }
+export type SaleStatus = { 'active' : null } |
+  { 'cancelled' : null };
 export type Time = bigint;
 export interface UpdateCustomerRequest {
   'id' : string,
@@ -100,14 +113,22 @@ export interface _SERVICE {
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'cancelSaleToday' : ActorMethod<[bigint], boolean>,
   'closeRegister' : ActorMethod<[CloseRegisterRequest], undefined>,
   'createCustomer' : ActorMethod<[CreateCustomerRequest], Customer>,
   'deleteSale' : ActorMethod<[bigint], undefined>,
+  'editSaleToday' : ActorMethod<
+    [bigint, PaymentMethod, Array<SaleItem>],
+    boolean
+  >,
+  'getActiveSales' : ActorMethod<[], Array<Sale>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCustomer' : ActorMethod<[string], Customer>,
   'getOpenRegisterSession' : ActorMethod<[], [] | [CashRegisterSession]>,
   'getSale' : ActorMethod<[bigint], [] | [Sale]>,
+  'getSaleEditLogsByEditor' : ActorMethod<[Principal], Array<SaleEditLog>>,
+  'getSaleEditLogsBySale' : ActorMethod<[bigint], Array<SaleEditLog>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'listClosingRecords' : ActorMethod<[], Array<ClosingRecord>>,
